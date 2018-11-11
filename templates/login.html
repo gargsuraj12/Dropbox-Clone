@@ -136,10 +136,10 @@
             <p class="text-muted">Safest and most secure way to store your data.</p>
             <form id="loginForm" class="mt-4" method="POST">
               <div class="form-group mb-4">
-                <input type="text" name="username" placeholder="Username or Email address" class="form-control border-0 shadow form-control-lg">
+                    <input type="text" name="username" placeholder="Username or Email address" class="form-control border-0 shadow form-control-lg" value="{{request.form['username']}}">
               </div>
               <div class="form-group mb-4">
-                <input type="password" name="passowrd" placeholder="Password" class="form-control border-0 shadow form-control-lg text-violet">
+                    <input type="password" name="password" placeholder="Password" class="form-control border-0 shadow form-control-lg text-violet" value="{{request.form['password']}}">
               </div>
               <div class="form-group mb-4">
                 
@@ -151,16 +151,19 @@
 
               <div id="id02" class="modal"> 
                     <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">×</span> 
-                    <form class="modal-content animate" action="/action_page.php" method='POST'> 
+                    <form class="modal-content animate" action="/registerUser" method='POST'> 
                     <div class="container"> 
+                        <label><b>Name</b></label>
+                        <p><input type="text" placeholder="Enter Name" name="name" value="{{request.form.name}}" required></p>
+
                         <label><b>Email</b></label> 
-                        <p><input type="text" placeholder="Enter Email" name="email" required></p> 
+                        <p><input type="text" placeholder="Enter Email" name="email" value="{{request.form.email}}" required></p> 
                             
                         <label><b>Password</b></label> 
-                        <p><input type="password" placeholder="Enter Password" name="psw" required></p> 
+                        <p><input type="password" placeholder="Enter Password" name="psw" value="{{request.form.psw}}" required></p> 
 
                         <label><b>Repeat Password</b></label> 
-                        <p><input type="password" placeholder="Enter Password" name="psw" required></p>
+                        <p><input type="password" placeholder="Re-enter Password" name="repswd" value="{{request.form.repswd}}" required></p>
 
                         <div class="clearfix"> 
                             <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn" style="float: center;">Cancel</button> 
@@ -181,6 +184,9 @@
 
               </script>
             </form>
+            {% if error %}
+                <p class="error"><strong>Error:</strong>{{ error }}</p>
+            {% endif %}
           </div>
         </div>
         
