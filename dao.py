@@ -76,6 +76,8 @@ def isFolderExist(fName, pFolderId, uId):
 def getPathForFile(fileId):
     sql = text("with cte(FOLDERID, FULLPATH, RECLEVEL) as (select C.FOLDERID, cast(C.FOLDERNAME as TEXT) as FULLPATH, 0 as RECLEVEL from FOLDER C where C.P_FOLDERID IS NULL UNION ALL select C1.FOLDERID, CAST((C.FULLPATH || \'/\' || C1.FOLDERNAME) AS TEXT) as FULLPATH, C.RECLEVEL + 1 as RECLEVEL from FOLDER C1 inner join cte C on C1.P_FOLDERID = C.FOLDERID) select FULLPATH from cte where FOLDERID in (select P_FOLDERID from file where FILEID=:fId)")
     result = db.engine.execute(sql, fId=fileId).first()
+    if result == None:
+        return None
     path = str(result[0])
     path += '/'
     return path
@@ -83,6 +85,8 @@ def getPathForFile(fileId):
 def getPathForFolder(folderId):
     sql = text("with cte(FOLDERID, FULLPATH, RECLEVEL) as (select C.FOLDERID, cast(C.FOLDERNAME as TEXT) as FULLPATH, 0 as RECLEVEL from FOLDER C where C.P_FOLDERID IS NULL UNION ALL select C1.FOLDERID, CAST((C.FULLPATH || '/' || C1.FOLDERNAME) AS TEXT) as FULLPATH, C.RECLEVEL + 1 as RECLEVEL from FOLDER C1 inner join cte C on C1.P_FOLDERID = C.FOLDERID) select FULLPATH from cte where folderid =:fId")
     result = db.engine.execute(sql, fId=folderId).first()
+    if result == None:
+        return None
     path = str(result[0])
     path += '/'
     return path
@@ -90,11 +94,15 @@ def getPathForFolder(folderId):
 def getParentFolderForFile(fileId, uId):
     sql = text("select FOLDERID, FOLDERNAME from FOLDER where FOLDERID in (select P_FOLDERID from file where FILEID= :fId and UID = :userId)")
     result = db.engine.execute(sql, fId=fileId, userId=uId).first()
+    if result == None:
+        return None
     return (result[0],result[1])
 
 def getParentFolderForFolder(folderId, uId):
     sql = text("SELECT FOLDERID, FOLDERNAME FROM FOLDER WHERE FOLDERID IN (SELECT P_FOLDERID FROM FOLDER WHERE FOLDERID= :fId AND UID= :userId)")
     result = db.engine.execute(sql, fId=folderId, userId=uId).first()
+    if result == None:
+        return None
     return (result[0],result[1])
 
 def updateFilePerm(fileId, uId, newPerm):
@@ -106,20 +114,29 @@ def getHomeFolderForUser(uId):
     folder = Folder.query.filter_by(pFolderId=None, uId=uId).first()
     return folder
 
-def deleteFolder(folderId):
-    result = Folder.query.filter_by(folderId=folderId).delete()
+def deleteFile(fileId, userId):
+    result = File.query.filter_by(fileId=fileId, uId=userId).delete()
     db.session.commit()
-    print(result)
+    return result
 
+def deleteFolder(folderId, userId):
+    result = Folder.query.filter_by(folderId=folderId, uId=userId).delete()
+    db.session.commit()
+    return result
 
+def getUserDetailsByUserId(userId):
+    user = User.query.filter_by(uId=userId).first()
+    return user
 
 # Testing goes here
-
-
+# user = getUserDetailsByUserId(1)
+# print(user.username)
+# print(getPathForFolder(6))
 # print(getPathForFolder(4))
 # updateUserDetails(2, "user2", "pass2", "Jha G", "pnj@outlook.com", "9876543210", 10)
 # insertFile("file32",1, 102.45, 5, 4)
-# deleteFolder(2)
+# print(deleteFolder(5))
+# print(deleteFile(1))
 # insertFile('FILE1',1,526.99,1,1)
 # print(listFilesForUser(1))    
 # listContentUnderFolder(1,1)
