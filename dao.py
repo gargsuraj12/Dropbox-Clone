@@ -80,6 +80,13 @@ def getPathForFile(fileId):
     path += '/'
     return path
 
+def getPathForFolder(folderId):
+    sql = text("with cte(FOLDERID, FULLPATH, RECLEVEL) as (select C.FOLDERID, cast(C.FOLDERNAME as TEXT) as FULLPATH, 0 as RECLEVEL from FOLDER C where C.P_FOLDERID IS NULL UNION ALL select C1.FOLDERID, CAST((C.FULLPATH || '/' || C1.FOLDERNAME) AS TEXT) as FULLPATH, C.RECLEVEL + 1 as RECLEVEL from FOLDER C1 inner join cte C on C1.P_FOLDERID = C.FOLDERID) select FULLPATH from cte where folderid =:fId")
+    result = db.engine.execute(sql, fId=folderId).first()
+    path = str(result[0])
+    path += '/'
+    return path
+
 def getParentFolderForFile(fileId, uId):
     sql = text("select FOLDERID, FOLDERNAME from FOLDER where FOLDERID in (select P_FOLDERID from file where FILEID= :fId and UID = :userId)")
     result = db.engine.execute(sql, fId=fileId, userId=uId).first()
@@ -99,7 +106,7 @@ def getHomeFolderForUser(uId):
     folder = Folder.query.filter_by(pFolderId=None, uId=uId).first()
     return folder
 
-def cascadeDeleteFolder(folderId):
+def deleteFolder(folderId):
     result = Folder.query.filter_by(folderId=folderId).delete()
     db.session.commit()
     print(result)
@@ -108,10 +115,11 @@ def cascadeDeleteFolder(folderId):
 
 # Testing goes here
 
-# updateUserDetails(2, "user2", "pass2", "Jha G", "pnj@outlook.com", "9876543210", 10)
 
+# print(getPathForFolder(4))
+# updateUserDetails(2, "user2", "pass2", "Jha G", "pnj@outlook.com", "9876543210", 10)
 # insertFile("file32",1, 102.45, 5, 4)
-# cascadeDeleteFolder(2)
+# deleteFolder(2)
 # insertFile('FILE1',1,526.99,1,1)
 # print(listFilesForUser(1))    
 # listContentUnderFolder(1,1)
