@@ -21,9 +21,8 @@ def insertUser(uname, passwd, name, email, phone):
     folders = Folder.query.filter_by(folderId=newFolder.folderId).all()
     return newUser,folders
 
-def updateUserDetails(uId, uname, passwd, name, email, phone, newUId):
+def updateUserDetails(uId, uname, passwd, name, email, phone):
     user = User.query.filter_by(uId=uId).first()
-    user.uId = newUId
     user.username = uname
     user.passwd = passwd
     user.name = name
