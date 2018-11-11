@@ -1,5 +1,13 @@
 from model import User, File, Folder, db 
 from sqlalchemy import text
+from sqlalchemy.engine import Engine
+from sqlalchemy import event
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 def insertUser(uname, passwd, name, email, phone):
     newUser = User(username=uname, passwd=passwd, name=name, email=email, phone=phone)
@@ -13,8 +21,9 @@ def insertUser(uname, passwd, name, email, phone):
     folders = Folder.query.filter_by(folderId=newFolder.folderId).all()
     return newUser,folders
 
-def updateUserDetails(uId, uname, passwd, name, email, phone):
+def updateUserDetails(uId, uname, passwd, name, email, phone, newUId):
     user = User.query.filter_by(uId=uId).first()
+    user.uId = newUId
     user.username = uname
     user.passwd = passwd
     user.name = name
@@ -91,9 +100,19 @@ def getHomeFolderForUser(uId):
     folder = Folder.query.filter_by(pFolderId=None, uId=uId).first()
     return folder
 
+def cascadeDeleteFolder(folderId):
+    result = Folder.query.filter_by(folderId=folderId).delete()
+    db.session.commit()
+    print(result)
+
 
 
 # Testing goes here
+
+# updateUserDetails(2, "user2", "pass2", "Jha G", "pnj@outlook.com", "9876543210", 10)
+
+# insertFile("file32",1, 102.45, 5, 4)
+# cascadeDeleteFolder(2)
 # insertFile('FILE1',1,526.99,1,1)
 # print(listFilesForUser(1))    
 # listContentUnderFolder(1,1)
