@@ -37,12 +37,15 @@ class BusinessLayer:
 		
 		for item in user.folders: 
 			if item.folderName != None and item.folderName ==  userName+'_home':
-				userclassInstance.currentFolderId=item.pFolderId
+				print('Inside name of User')
+				userclassInstance.currentFolderId=item.folderId
+				userclassInstance.setUserCurrentFolderName(item.folderName)
+				userclassInstance.setHomeFolderId(item.folderId)
 			FolderDetails = classObject.FolderClass()
 			FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
 			listofFolderDetails.append(FolderDetails)		
 		
-		#print(listofFolderDetails[0].foldername)		
+		print(listofFolderDetails[0].foldername)		
 		
 		UserData["UserDetails"]=userclassInstance
 		UserData["FolderDetails"]=listofFolderDetails
@@ -99,7 +102,9 @@ class BusinessLayer:
 
 			for item in FDDB: 
 				if item.folderName != None and item.folderName == userName+'_home':
-					UserClass.currentFolderId=item.pFolderId
+					UserClass.currentFolderId=item.folderId
+					UserClass.setUserCurrentFolderName(item.folderName)
+					UserClass.setHomeFolderId(item.folderId)
 				FolderDetails = classObject.FolderClass()
 				FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
 				listofFolderDetails.append(FolderDetails)		
@@ -349,12 +354,13 @@ class BusinessLayer:
 B = BusinessLayer()
 #C = ClassStructure.Company('1','','','','')
 
-#userDetail = B.ValidateUser('nitish11', 'pass3')
-#if userDetail == None:
-#	print(' User Not Validated ')
-#else:
-#	userDetails = userDetail["UserDetails"]
-	#print(userDetails.userid,userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
+userDetail = B.ValidateUser('nitish11', 'pass3')
+if userDetail == None:
+	print(' User Not Validated ')
+else:
+	userDetails = userDetail["UserDetails"]
+	print(userDetails.currentFolderId,userDetails.HomeFolderId,userDetails.currentFolderName,userDetails.userid,
+userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
 
 #value = B.isUserExist('user3')
 #if value == False:
