@@ -232,6 +232,35 @@ class BusinessLayer:
 		parentFolderId = self.dbObject.getParentFolderId(userId,fileId)
 		return parentFolderId
 
+	#Output:	
+	#If Folder is Successfully Created 
+	# return Dictionary : 
+	# 	Key		Value
+	#	userDetails	UserObject with details
+	#	FileDetails	User listofFileDetails
+	#If Folder is not able to create 
+	#	Key			Value
+	#	Error	Problem In Updating Permission Details
+	def getAllFiles(self,userId):
+		UserData = {}
+		listofFileDetails = []
+		FileDetailsDB = self.dbObject.listFilesForUser(userId)
+				
+		for item in FileDetailsDB: 
+			FileDetails = classObject.FileClass()
+			FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
+			listofFileDetails.append(FileDetails)	
+
+		UserData["FileDetails"] = listofFileDetails;
+		return UserData
+
+	#Get user Id's home Folder Details 
+	def getHomeFolderId(userid):
+		item = self.dbObject.getHomeFolderForUser(userid)
+		FolderDetails = classObject.FolderClass()
+		FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
+		return FolderDetails
+		
 
 	#Helper Method 
 	def ParseUserDBClassToUserClass(self,UserClass,user):
@@ -320,12 +349,12 @@ class BusinessLayer:
 B = BusinessLayer()
 #C = ClassStructure.Company('1','','','','')
 
-userDetail = B.ValidateUser('nitish11', 'pass3')
-if userDetail == None:
-	print(' User Not Validated ')
-else:
-	userDetails = userDetail["UserDetails"]
-	print(userDetails.userid,userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
+#userDetail = B.ValidateUser('nitish11', 'pass3')
+#if userDetail == None:
+#	print(' User Not Validated ')
+#else:
+#	userDetails = userDetail["UserDetails"]
+	#print(userDetails.userid,userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
 
 #value = B.isUserExist('user3')
 #if value == False:
