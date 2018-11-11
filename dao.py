@@ -1,24 +1,23 @@
 from model import User, File, Folder, db 
 from sqlalchemy import text
 
-def insertUser(uname, passwd, name, email, phone, address):
-    newUser = User(username=uname, passwd=passwd, name=name, email=email, phone=phone, address=address)
+def insertUser(uname, passwd, name, email, phone):
+    newUser = User(username=uname, passwd=passwd, name=name, email=email, phone=phone)
     db.session.add(newUser)
     db.session.commit()
     uId = newUser.uId
-    newFolder = Folder(folderName='home', uId=uId, pFolderId=None)
+    newFolder = Folder(folderName=uname+'home', uId=uId, pFolderId=None)
     db.session.add(newFolder)
     db.session.commit()
     return newUser,newFolder
 
-def updateUserDetails(uId, uname, passwd, name, email, phone, address):
+def updateUserDetails(uId, uname, passwd, name, email, phone):
     user = User.query.filter_by(uId=uId).first()
     user.username = uname
     user.passwd = passwd
     user.name = name
     user.email = email
     user.phone = phone
-    user.address = address
     db.session.commit()
     return user
 

@@ -19,9 +19,8 @@ class User(db.Model):
     username = db.Column('username', db.Unicode, unique = True)
     passwd = db.Column('passwd', db.Unicode)
     name = db.Column('name', db.Unicode) 
-    email = db.Column('email', db.Unicode, unique=True) 
-    phone = db.Column('phone', db.Unicode, unique=True) 
-    address = db.Column('address', db.Unicode)
+    email = db.Column('email', db.Unicode) 
+    phone = db.Column('phone', db.Unicode) 
     files = db.relationship('File', backref='owner')
     folders = db.relationship('Folder', backref='owner')
 
