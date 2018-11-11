@@ -134,7 +134,7 @@
             <h1 class="mb-4">DropBox</h1>
             
             <p class="text-muted">Safest and most secure way to store your data.</p>
-            <form id="loginForm" class="mt-4" method="POST">
+            <form id="loginForm" class="mt-4" action = "{{url_for('validate')}}"  method="POST">
               <div class="form-group mb-4">
                     <input type="text" name="username" placeholder="Username or Email address" class="form-control border-0 shadow form-control-lg" value="{{request.form['username']}}">
               </div>
@@ -145,9 +145,10 @@
                 
               </div>
               
-                <button type="submit" class="btn btn-primary " style="margin-right: 10px;" onclick="location.href='index.html'">Log in</button>
-              
-                <button type="submit" class="btn btn-primary " onclick="document.getElementById('id02').style.display='block'">Sign Up</button>
+                <button type="submit" class="btn btn-primary " style="margin-right: 10px;">Log in</button>
+            </form>
+
+            <button type="submit" class="btn btn-primary " onclick="document.getElementById('id02').style.display='block'">Sign Up</button>
 
               <div id="id02" class="modal"> 
                     <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">×</span> 
@@ -167,7 +168,7 @@
 
                         <div class="clearfix"> 
                             <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn" style="float: center;">Cancel</button> 
-                            <button type="submit" class="signupbtn" style="float: center;" onclick="location.href='index.html'">Sign Up</button> 
+                            <button type="submit" class="signupbtn" style="float: center;">Sign Up</button> 
                         </div> 
                   
                     </div> 
@@ -181,9 +182,8 @@
                       } 
                   } 
 
-
               </script>
-            </form>
+
             {% if error %}
                 <p class="error"><strong>Error:</strong>{{ error }}</p>
             {% endif %}
