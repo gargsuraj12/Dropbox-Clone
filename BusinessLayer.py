@@ -158,11 +158,15 @@ class BusinessLayer:
 			FileDetails = classObject.FileClass()
 			FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
 			listofFileDetails.append(FileDetails)		
-		#To make Chnage $$$$$$$$$
-		UserData["UserDetails"]=classObject.UserClass()
+		
+		user = self.dbObject.GetUserDetailsByUserId(userId)
+		userclassInstance = classObject.UserClass()
+		userclassInstance.setUserDetails(user.uId,user.username,user.name,user.passwd,user.email,user.phone)
+		
+		UserData["UserDetails"]=user
 		UserData["FolderDetails"]=listofFolderDetails
 		UserData["FileDetails"]=listofFileDetails
-		print(UserData)			
+		#print(UserData)			
 		return UserData	
 
 	#Used For Searching the File 
