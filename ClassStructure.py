@@ -11,6 +11,8 @@ class UserClass:
 		self.phone=''
 		#self.address=address
 		self.currentFolderId=None
+		self.currentFolderName=None
+		self.HomeFolderId=None
 		
 
 	def setUserDetails(self,userid,userName,passwd,name,email,phone):
@@ -20,6 +22,15 @@ class UserClass:
 		self.name=name
 		self.email=email
 		self.phone=phone
+		self.currentFolderName=None
+		self.HomeFolderId=None
+
+	def setUserCurrentFolderName(self,currentFolderName):
+		self.currentFolderName=currentFolderName
+
+	def setHomeFolderId(self,HomeFolderId):
+		self.HomeFolderId=HomeFolderId
+
 	
 class FileClass:
 	def __init__(self):
