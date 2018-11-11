@@ -6,10 +6,12 @@ def insertUser(uname, passwd, name, email, phone):
     db.session.add(newUser)
     db.session.commit()
     uId = newUser.uId
-    newFolder = Folder(folderName=uname+'home', uId=uId, pFolderId=None)
+    homeFolder = uname+"_home"
+    newFolder = Folder(folderName=homeFolder, uId=uId, pFolderId=None)
     db.session.add(newFolder)
     db.session.commit()
-    return newUser,newFolder
+    folders = Folder.query.filter_by(folderId=newFolder.folderId).all()
+    return newUser,folders
 
 def updateUserDetails(uId, uname, passwd, name, email, phone):
     user = User.query.filter_by(uId=uId).first()
@@ -56,8 +58,12 @@ def listContentUnderFolder(pFolderId, uId):
     return files,folders
 
 def isFileExist(fName, pFolderId, uId):
-    file = File.query.filter_by(fileName=fName, pFolderId=pFolderId, uId=uId).first  
-    return file   
+    file = File.query.filter_by(fileName=fName, pFolderId=pFolderId, uId=uId).first()
+    return file
+
+def isFolderExist(fName, pFolderId, uId):
+    folder = Folder.query.filter_by(folderName=fName, pFolderId=pFolderId, uId=uId).first()
+    return folder
 
 def getPathForFile(fileId):
     sql = text("with cte(FOLDERID, FULLPATH, RECLEVEL) as (select C.FOLDERID, cast(C.FOLDERNAME as TEXT) as FULLPATH, 0 as RECLEVEL from FOLDER C where C.P_FOLDERID IS NULL UNION ALL select C1.FOLDERID, CAST((C.FULLPATH || \'/\' || C1.FOLDERNAME) AS TEXT) as FULLPATH, C.RECLEVEL + 1 as RECLEVEL from FOLDER C1 inner join cte C on C1.P_FOLDERID = C.FOLDERID) select FULLPATH from cte where FOLDERID in (select P_FOLDERID from file where FILEID=:fId)")
@@ -103,6 +109,9 @@ def getHomeFolderForUser(uId):
 # else:
 #     print("User details updated..")        
 
-# updateFilePerm(3, 1, 1)
+# updateFilePerm(1, 1, 1)
 # folder = getHomeFolderForUser(2)
 # print(folder.folderName)
+# validateUser("user1", "pass1")
+# print(insertUser('testDummy','dummy123','NameDummy','dummy@dum.com','5555'))
+# print(isFolderExist("dir1", 2, 3))
