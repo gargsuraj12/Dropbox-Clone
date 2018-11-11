@@ -82,6 +82,11 @@ def updateFilePerm(fileId, uId, newPerm):
     file.filePerm = newPerm
     db.session.commit()
 
+def getHomeFolderForUser(uId):
+    folder = Folder.query.filter_by(pFolderId=None, uId=uId).first()
+    return folder
+
+
 
 # Testing goes here
 # insertFile('FILE1',1,526.99,1,1)
@@ -100,3 +105,5 @@ def updateFilePerm(fileId, uId, newPerm):
 #     print("User details updated..")        
 
 # updateFilePerm(3, 1, 1)
+# folder = getHomeFolderForUser(2)
+# print(folder.folderName)
