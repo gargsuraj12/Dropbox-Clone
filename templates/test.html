@@ -1,0 +1,25 @@
+{% block body %}
+  <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
+  
+    <table class="table table-hover">
+    <tbody>    
+      {% for items in FileDetails %}
+       <!--<tr> 
+        <td>
+          <form action = "/opendirectory" method = "POST">
+           
+          {%print items.fileid%}
+
+            <input type="text" name="folderId" value="{{items.fileid}}">
+
+            <button type="submit" class="btn btn-link float-left" >
+              <div align="left">
+                {%print items.filename%}
+             </div>
+           </button> 
+          </form>  
+          </td>
+        </tr>-->
+          {%print items.filename%}
+      {% endfor %}
+{% endblock %}      

@@ -1,0 +1,173 @@
+{% extends "layout.html" %}
+
+{% block gotohome %}
+    
+    <form action="{{ url_for('index',userId=1,folderId=3) }}" method = "POST">
+      
+    <!--  <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;"> -->
+
+  <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
+    
+
+      <input type="text" name="folderName" value="home" style="display:none;">
+
+      <button class="btn btn-outline-info btn-rounded " type="submit">Home</button>
+
+    </form>
+
+<!-- 
+    <a class="nav-link active" href="/index">
+      <span data-feather="home"></span>
+      <br><br>
+       Home 
+    </a> -->
+
+{% endblock %}
+
+{% block showallfiles %}
+
+  <form action="{{ url_for('myfiles') }}" method = "POST">
+
+  <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">
+  
+  <button class="btn btn-outline-info btn-rounded " type="submit">My Files</button>
+
+  </form>    
+
+<!--     <a class="nav-link" href="/showallfiles">
+      <span data-feather="file"></span>
+      Files
+    </a> -->
+
+{% endblock %}
+
+{% block body %}
+
+  <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
+  
+    <table class="table table-hover">
+    <tbody>    
+      {% for items in UserData["FolderDetails"] %}
+       <tr> 
+        <td>
+          <form action = "/opendirectory" method = "POST">
+            
+            <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">
+
+            <input type="text" name="folderId" value="{{UserData['FolderDetails'].fileid}}" style="display:none;">
+
+            <button type="submit" class="btn btn-link float-left" >
+              <div align="left">
+                {%print items.filename%}
+             </div>
+           </button> 
+          </form>  
+          </td>
+        </tr>
+      {% endfor %}
+      
+      {% for items in UserData["FileDetails"] %}
+        <tr>
+          <td>
+            <div class="md-form input-group">
+              <div class="input-group-append">
+                <button class="btn btn-link dropdown-toggle float-left" type="submit" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% print items %}</button>
+                <div class="dropdown-menu">
+
+                    <a class="dropdown-item" href="/permission/{{UserData['UserDetails'].userid}}/{{UserData['FileDetails'].fileid}}/public">Make Public</a>
+                    <a class="dropdown-item" href="/permission/{{UserData['UserDetails'].userid}}/{{UserData['FileDetails'].fileid}}/private">Make Private</a>
+                    <a class="dropdown-item" href="/download/{{UserData['UserDetails'].userid}}/{{UserData['FileDetails'].fileid}}">Download</a>              
+                </div>
+              </div>
+            </div>
+          </td> 
+        </tr>
+      {% endfor %}          
+     </tbody>
+    </table>
+  </div>  
+{% endblock %}        
+
+{% block search %}
+
+    <form class="form-inline" action = "/search" method = "get">
+    <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">  
+    <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
+    <div class="input-group-append">
+      <button class="btn btn-outline-mdb-color waves-effect" type="submit" id="button-addon2">
+      <i class="fa fa-search fa-sm pr-2" aria-hidden="true"></i>
+        Search</button>
+    </div>
+    </form>
+
+{% endblock %}
+
+{% block upload %}
+
+  <div class="btn-group" role="group" aria-label="Basic example">
+  
+  <button  data-toggle="modal" data-target="#uploadfiles" type="button" class="btn btn-outline-mdb-color waves-effect">
+    <i class="fa fa-upload fa-sm pr-2" aria-hidden="true"></i>
+      Upload Files
+  </button>
+
+    <button  data-toggle="modal" data-target="#createfolder" type="button" class = " btn btn-outline-mdb-color waves-effect">
+    <i class="fa fa-folder fa-sm pr-2" aria-hidden="true"></i>
+    Create Folder
+  </button>
+  
+  </div>
+
+  <div class="modal fade" id="createfolder" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Enter folder name</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+               <form class="md-form" id="create-folder" action="{{ url_for('createfolder') }}" method="POST">
+                  <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">
+                  <input type="text" name="folderId" value="{{currentFolderId}}" style="display:none;">
+                  <input id="folder" class="btn btn-primary btn-sm" type="text" name="folder">
+                  <input type="submit" class="btn btn-primary" value="createfolder" id="upload-button">
+               </form>     
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal fade" id="uploadfiles" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Choose Files</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+           <form class="md-form" id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+              <input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">
+              <input type="text" name="folderId" value="{{currentFolderId}}" style="display:none;">
+              <input id="file-picker" class="btn btn-primary btn-sm" type="file" name="file" multiple>
+              <input type="submit" class="btn btn-primary" value="Upload!" id="upload-button">
+           </form>     
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block signOut %}
+
+  <a class="nav-link" href="/logout">Logout</a>
+
+{% endblock %}
+
+

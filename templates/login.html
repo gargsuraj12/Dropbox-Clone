@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DropBox</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <!-- Bootstrap CSS-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap/css/bootstrap.min.css') }}">
+    <!-- Font Awesome CSS-->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <!-- Google fonts - Popppins for copy-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,800">
+    <!-- orion icons-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/orionicons.css') }}">
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.default.css') }}" id="theme-stylesheet">
+    <!-- Custom stylesheet - for your changes-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <!-- Favicon-->
+
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500" rel="stylesheet" >
+    <link href="//fonts.googleapis.com/css?family=Amaranth:400,400i,700,700i" rel="stylesheet">
+    <link href="//fonts.googleapis.com/css?family=PT+Sans:400,400i,700,700i" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+
+        <style> 
+  
+            input[type=text], input[type=password] { 
+                width: 70%; 
+                padding: 12px 20px; 
+                margin: 8px 0; 
+                display: inline-block; 
+                border: 1px solid #ccc; 
+                box-sizing: border-box; 
+            } 
+              
+              
+            button { 
+                background-color: rgba(10, 107, 235, 0.938); 
+                color: white; 
+                padding: 14px 20px; 
+                margin: 8px 0; 
+                border: none; 
+                cursor: pointer; 
+                width: 35%; 
+            } 
+              
+              
+            .cancelbtn { 
+                padding: 14px 20px; 
+                background-color:  #DCDCDC; 
+            } 
+              
+            
+            .cancelbtn,.signupbtn {float:center;
+                width:10%;
+                margin-left: 15%; 
+                border-radius: 12px;
+            } 
+              
+              
+            .container { 
+                padding: 16px; 
+            } 
+              
+              
+            .modal { 
+                display: none;  
+                position: fixed;  
+                z-index: 1; left: 0; 
+                top: 0; 
+                width: 100%; 
+                height: 100%;  
+                overflow: auto;  
+                background-color: rgb(0,0,0);  
+                background-color: rgba(0,0,0,0.4);  
+                padding-top: 60px; 
+            } 
+              
+              
+            .modal-content { 
+                background-color: #fefefe; 
+                margin: 5% auto 15% auto;  
+                border: 1px solid #888; 
+                width: 80%;   
+            } 
+              
+              
+            .close { 
+                position: absolute; 
+                right: 35px; 
+                top: 15px; 
+                color: #000; 
+                font-size: 40px; 
+                font-weight: bold; 
+            } 
+              
+            .close:hover, 
+            .close:focus { 
+                color: red; 
+                cursor: pointer; 
+            } 
+              
+              
+            .clearfix::after { 
+                content: ""; 
+                clear: both; 
+                display: table; 
+            } 
+              
+              
+            @media screen and (max-width: 300px) { 
+                .cancelbtn, .signupbtn { 
+                   width: 50%; 
+                } 
+            } 
+
+            </style>
+  </head>
+  <body>
+    <div class="page-holder d-flex align-items-center">
+      <div class="container">
+        <div class="row align-items-center py-5">
+          <div class="col-5 col-lg-7 mx-auto mb-5 mb-lg-0">
+            <div class="pr-lg-5"><img src="/static/freshCloud.png" alt="" class="img-fluid"></div>
+          </div>
+          <div class="col-lg-5 px-lg-4">
+            <h1 class="mb-4">DropBox</h1>
+            
+            <p class="text-muted">Safest and most secure way to store your data.</p>
+            <form id="loginForm" class="mt-4" method="POST">
+              <div class="form-group mb-4">
+                <input type="text" name="username" placeholder="Username or Email address" class="form-control border-0 shadow form-control-lg">
+              </div>
+              <div class="form-group mb-4">
+                <input type="password" name="passowrd" placeholder="Password" class="form-control border-0 shadow form-control-lg text-violet">
+              </div>
+              <div class="form-group mb-4">
+                
+              </div>
+              
+                <button type="submit" class="btn btn-primary " style="margin-right: 10px;" onclick="location.href='index.html'">Log in</button>
+              
+                <button type="submit" class="btn btn-primary " onclick="document.getElementById('id02').style.display='block'">Sign Up</button>
+
+              <div id="id02" class="modal"> 
+                    <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">×</span> 
+                    <form class="modal-content animate" action="/action_page.php" method='POST'> 
+                    <div class="container"> 
+                        <label><b>Email</b></label> 
+                        <p><input type="text" placeholder="Enter Email" name="email" required></p> 
+                            
+                        <label><b>Password</b></label> 
+                        <p><input type="password" placeholder="Enter Password" name="psw" required></p> 
+
+                        <label><b>Repeat Password</b></label> 
+                        <p><input type="password" placeholder="Enter Password" name="psw" required></p>
+
+                        <div class="clearfix"> 
+                            <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn" style="float: center;">Cancel</button> 
+                            <button type="submit" class="signupbtn" style="float: center;" onclick="location.href='index.html'">Sign Up</button> 
+                        </div> 
+                  
+                    </div> 
+                    </form> 
+              </div> 
+              <script> 
+                  var modal = document.getElementById('id02'); 
+                  window.onclick = function(event) { 
+                      if (event.target == modal) { 
+                          modal.style.display = "none"; 
+                      } 
+                  } 
+
+
+              </script>
+            </form>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    <!-- JavaScript files-->
+    <!-- <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/popper.js/umd/popper.min.js"> </script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="vendor/jquery.cookie/jquery.cookie.js"> </script>
+    <script src="vendor/chart.js/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+    <script src="js/front.js"></script> -->
+  </body>
+</html>
