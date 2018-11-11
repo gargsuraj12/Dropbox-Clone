@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -21,7 +21,7 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{{url_for('index')}}">Dropbox</a>
+      {% block icon %}{% endblock %}
         <div class="float-left">
               
               {% block search %}{% endblock %}
@@ -52,7 +52,7 @@
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
                 <dir>
-                    <h1 class="h2">Dashboard</h1>
+                    {% block userwelcome %}{% endblock %}
                 </dir>
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group mr-2">
@@ -68,11 +68,11 @@
     </div>
     
 
-    
-    <script src="static/js/jquery-2.2.3.min.js"></script>
-    <script type="text/javascript" src="static/js/popper.min.js"></script>
-    <script src="static/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="static/js/mdb.min.js"></script>
+    <script src="{{ url_for('static',filename='js/jquery-3.3.1.min.js')}}"></script>
+    <script src="{{ url_for('static',filename='js/popper.min.js')}}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js')}}"></script>
+    <script src="{{ url_for('static',filename='js/mdb.min.js')}}"></script>
+
 
   </body>
 </html>

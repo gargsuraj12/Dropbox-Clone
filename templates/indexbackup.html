@@ -1,23 +1,20 @@
 {% extends "layout.html" %}
 
-{% block userwelcome %}
-  
-  <h1 class="h2"> Dashboard {{UserDetails.userName}} </h1>
-
-{% endblock %} 
-
-{% block icon %}
-
-<a class="navbar-brand col-sm-3 col-md-2 mr-0" 
-        href="/index/{{UserDetails.userid}}/{{UserDetails.homeFolderId}}">
-      Dropbox</a>
-
-{% endblock %}
-
 {% block gotohome %}
+    
+    <!--<form action="{{ url_for('index') }}" method = "POST">-->
+      <!---->
+      <!--<input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">-->
+      <!--<input type="text" name="folderName" value="home" style="display:none;">-->
 
-    <a class="nav-link active" 
-        href="/index/{{UserDetails.userid}}/{{UserDetails.homeFolderId}}">
+      <!--<button class="btn btn-outline-info btn-rounded " type="submit">Home</button>-->
+
+    <!--</form>-->
+
+    <!--<a class="dropdown-item" -->
+       <!--href="/permission/{{UserData['UserDetails'].userid}}/home}}">Home</a>-->
+
+    <a class="nav-link active" href="/index/{{UserDetails.userid}}/home">
       <span data-feather="home"></span>
       <br><br>
        Home
@@ -27,7 +24,15 @@
 
 {% block showallfiles %}
 
-    <a class="nav-link" href="/allfiles/{{UserDetails.userid}}">
+  <!--<form action="{{ url_for('myfiles') }}" method = "POST">-->
+
+  <!--<input type="text" name="userId" value="{{UserData['UserDetails'].userid}}" style="display:none;">-->
+  <!---->
+  <!--<button class="btn btn-outline-info btn-rounded " type="submit">My Files</button>-->
+
+  <!--</form>    -->
+
+    <a class="nav-link" href="/index/{{UserDetails.userid}}/allfiles">
       <span data-feather="file"></span>
       Files
     </a>
@@ -36,8 +41,6 @@
 
 {% block body %}
 
-  <h1>{% print UserDetails.currentFolderName %}</h1>
-
   <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
   
     <table class="table table-hover">
@@ -45,61 +48,36 @@
       {% for items in FolderDetails %}
        <tr> 
         <td>
+          <form action = "/opendirectory" method = "POST">
+            
+            <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
 
-          <div class="btn-group">
-                <button type="button" class="btn btn-link">
-                  <i class="fa fa-folder fa-sm pr-2" aria-hidden="true"></i>
-                {% print items.foldername %}
-                  </button>
-                <button type="button" class="btn btn-link dropdown-toggle px-3" 
-                  data-toggle="dropdown" aria-haspopup="true"
-                  aria-expanded="false">
-                </button>
-                 <div class="dropdown-menu">
+            <input type="text" name="folderId" value="{{UserDetails.currentFolderId}}" style="display:none;">
 
-            <a class="dropdown-item" 
-            href = "opendirectory/{{UserDetails.userid}}/{{items.folderid}}/{{items.foldername}}">        Open
-                    </a>
-
-                    <a class="dropdown-item" 
-                    href = "deleteFolder/{{UserDetails.userid}}/{{items.folderid}}">Delete
-                    </a>
-              
-                </div>
-              </div>
-
+            <button type="submit" class="btn btn-link float-left" >
+              <div align="left">
+                {%print items.filename%}
+             </div>
+           </button> 
+          </form>  
           </td>
         </tr>
       {% endfor %}
       
-      
       {% for items in FileDetails %}
         <tr>
           <td>
-              <div class="btn-group">
-                <button type="button" class="btn btn-link">{% print items.filename %}</button>
-                <button type="button" class="btn btn-link dropdown-toggle px-3" 
-                  data-toggle="dropdown" aria-haspopup="true"
-                  aria-expanded="false">
-                </button>
-                 <div class="dropdown-menu">
+            <div class="md-form input-group">
+              <div class="input-group-append">
+                <button class="btn btn-link dropdown-toggle float-left" type="submit" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% print items %}</button>
+                <div class="dropdown-menu">
 
-                    <a class="dropdown-item" 
-                    href = "permission/{{UserDetails.userid}}/{{items.fileid}}/public">Make Public
-                    </a>
-                  
-                    <a class="dropdown-item" 
-                    href = permission/{{UserDetails.userid}}/{{items.fileid}}/private">Make Private
-                    </a>  
-
-                    <a class="dropdown-item" 
-                    href = "deleteFile/{{UserDetails.userid}}/{{items.fileid}}">Delete</a>
-
-                    <a class="dropdown-item" 
-                    href = "download/{{UserDetails.userid}}/{{items.fileid}}">Download</a>
-
+                    <a class="dropdown-item" href="/permission/{{UserDetails.userid}}/{{FileDetails.fileid}}/public">Make Public</a>
+                    <a class="dropdown-item" href="/permission/{{UserDetails.userid}}/{{FileDetails.fileid}}/private">Make Private</a>
+                    <a class="dropdown-item" href="/download/{{UserDetails.userid}}/{{FileDetails.fileid}}">Download</a>
                 </div>
-              </div>            
+              </div>
+            </div>
           </td> 
         </tr>
       {% endfor %}          
@@ -110,7 +88,7 @@
 
 {% block search %}
 
-    <form class="form-inline" action = "{{url_for('search')}}" method = "get">
+    <form class="form-inline" action = "/search" method = "get">
     <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
     <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
     <div class="input-group-append">
@@ -151,7 +129,6 @@
                <form class="md-form" id="create-folder" action="{{ url_for('createfolder') }}" method="POST">
                   <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
                   <input type="text" name="folderId" value="{{UserDetails.currentFolderId}}" style="display:none;">
-                  <input type="text" name="foldername" value="{{UserDetails.currentFolderName}}" style="display:none;">
                   <input id="folder" class="btn btn-primary btn-sm" type="text" name="folder">
                   <input type="submit" class="btn btn-primary" value="createfolder" id="createfolder-button">
                </form>     
@@ -186,8 +163,8 @@
 {% endblock %}
 
 {% block signOut %}
-  
-  <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+
+  <a class="nav-link" href="/logout">Logout</a>
 
 {% endblock %}
 

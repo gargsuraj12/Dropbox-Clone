@@ -129,8 +129,8 @@ def getUserDetailsByUserId(userId):
     return user
 
 # Testing goes here
-# user = getUserDetailsByUserId(1)
-# print(user.username)
+#user = getUserDetailsByUserId(1)
+#print(user.files)
 # print(getPathForFolder(6))
 # print(getPathForFolder(4))
 # updateUserDetails(2, "user2", "pass2", "Jha G", "pnj@outlook.com", "9876543210", 10)
