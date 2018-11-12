@@ -139,6 +139,8 @@ def index(folderId):
     foldername = BusinessLayer.getPathForFolder(userId,folderId)
     foldername = foldername[:-1]
     AddToSession('currentFolderName',foldername)
+    #keyToAdd = 'PFDEL_'+foldername
+    #AddToSession('directory_home',foldername)
 
     UserData = BusinessLayer.getFolderContents(userId, folderId)
 
@@ -222,6 +224,9 @@ def upload():
             print(fileObj)
 
         UserData = BusinessLayer.getFolderContents(userId,currentFolderId)
+
+        AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
+        
         return redirect(url_for('index',folderId = currentFolderId))    
 
     else:
@@ -308,6 +313,9 @@ def deleteFolder(folderId,foldername):
     userId = RetrieveSessionDetails('userId')
     currentFolderId = RetrieveSessionDetails('currentFolderId')
     flag = BusinessLayer.RemoveExisitngFolder(userId,currentFolderId,folderId,foldername)
+
+    AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
+
     return redirect(url_for('index',folderId = currentFolderId))    
 
 
@@ -316,6 +324,9 @@ def deleteFile(fileId,filename):
     userId = RetrieveSessionDetails('userId')
     currentFolderId = RetrieveSessionDetails('currentFolderId')
     flag = BusinessLayer.RemoveExisitngFile(userId,currentFolderId,fileId,filename)    
+
+    AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
+
     return redirect(url_for('index',folderId = currentFolderId))
 
 @app.route('/allfiles')

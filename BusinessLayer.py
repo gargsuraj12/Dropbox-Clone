@@ -13,8 +13,8 @@ class BusinessLayer:
     #sqlite://///home/nitish/IIITH/Semester1/Scripting/Project-DropBox/scripting_project-master/dropbox.db  
     
     def getTotalSize(self,userid):
-        # return self.dbObject.getConsumedSpaceByUser(userid)
-        return 100
+        return self.dbObject.getConsumedSpaceByUser(userid)
+        
 
     #If User Valid 
     # return Dictionary : 
@@ -274,7 +274,7 @@ class BusinessLayer:
 
         UFiles = self.dbObject.updateFilePerm(fileId,userId,isPublic)
 
-        print(UFiles)
+        #print(UFiles)
 
         if UFiles == None:
             return False
