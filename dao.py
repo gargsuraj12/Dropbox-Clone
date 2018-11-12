@@ -1,7 +1,7 @@
 from model import User, File, Folder, db 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
-from sqlalchemy import event
+from sqlalchemy import event, and_
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -52,12 +52,11 @@ def isUserExist(uname):
     return user
 
 def listFilesForUser(uId):
-    user = User.query.filter_by(uId=uId).all()
-    files = user.files
+    files = File.query.filter_by(uId=uId).all()
     return files
 
 def listAllPublicFilesByFilename(fName):
-    files = File.query.filter_by(fileName=fName, filePerm=0).all()
+    files = File.query.filter(File.fileName.like("%"+fName+"%"), File.filePerm==0).all()
     return files
 
 def listContentUnderFolder(pFolderId, uId):
@@ -143,7 +142,23 @@ def getUserDetailsByUserId(userId):
     user = User.query.filter_by(uId=userId).first()
     return user
 
+def getConsumedSpaceByUser(userId):
+    sql = text("SELECT SUM(SIZE) FROM FILE WHERE UID=:uId")
+    size = db.engine.execute(sql, uId=userId).first()
+    if size[0] == None:
+        return 0
+    return size[0]
+
 # Testing goes here
+
+# files = listAllPublicFilesByFilename("iNdEx")
+# for file in files:
+#     print(file.fileName)
+# print(getConsumedSpaceByUser(3))
+# files = listFilesForUser(1)
+# for file in files:
+#     print(file.fileName)
+
 #user = getUserDetailsByUserId(1)
 #print(user.files)
 # print(getPathForFolder(6))
