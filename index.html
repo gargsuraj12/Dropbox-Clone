@@ -1,0 +1,209 @@
+{% extends "layout.html" %}
+
+{% block userwelcome %}
+  
+  <h1 class="h2"> Dashboard {{UserDetails.userName}} </h1>
+
+{% endblock %} 
+
+{% block icon %}
+
+<a class="navbar-brand col-sm-3 col-md-2 mr-0" 
+      href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
+      Dropbox</a>
+
+{% endblock %}
+
+{% block gotohome %}
+
+    <a class="nav-link active" 
+      href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
+      <span data-feather="home"></span>
+      <br><br>
+       Home
+    </a>
+
+{% endblock %}
+
+{% block showallfiles %}
+    
+    <a class="nav-link" href = "{{url_for('allfiles')}}">
+      <span data-feather="file"></span>
+      Files
+    </a>
+
+{% endblock %}
+
+  {% block body %}
+
+  {% if  UserDetails.currentFolderId|string == UserDetails.HomeFolderId|string %}
+    
+    <h4 style="margin-left: 22%;margin-right:7%;"> Home </h4>
+
+  {% else %}
+
+  <h4 style="margin-left: 22%;margin-right:7%;">
+    
+    {% set index = UserDetails.currentFolderName.find('/') %}
+    {% set foldername = UserDetails.currentFolderName[index+1:] %}
+    {% set foldername = "Home/"~foldername %}
+    {% print foldername %} </h4>
+
+  {% endif %}
+
+  <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
+  
+    <table class="table table-hover">
+    <tbody>    
+      {% for items in FolderDetails %}
+       <tr> 
+        <td>
+
+          <div class="btn-group">
+                <button type="button" class="btn btn-link">
+                  <i class="fa fa-folder fa-sm pr-2" aria-hidden="true"></i>
+                {% print items.foldername %}
+                  </button>
+                <button type="button" class="btn btn-link dropdown-toggle px-3" 
+                  data-toggle="dropdown" aria-haspopup="true"
+                  aria-expanded="false">
+                </button>
+                 <div class="dropdown-menu">
+
+                    <a class="dropdown-item" 
+                    href = "{{url_for('index',folderId = items.folderid)}}">
+                    Open
+                    </a>
+
+                    <a class="dropdown-item" 
+                    href = "{{url_for('deleteFolder',folderId = items.folderid,foldername = items.foldername)}}">
+                    Delete
+                    </a>
+              
+                </div>
+              </div>
+
+          </td>
+        </tr>
+      {% endfor %}
+      
+      
+      {% for items in FileDetails %}
+        <tr>
+          <td>
+              <div class="btn-group">
+                <button type="button" class="btn btn-link">{% print items.filename %}</button>
+                <button type="button" class="btn btn-link dropdown-toggle px-3" 
+                  data-toggle="dropdown" aria-haspopup="true"
+                  aria-expanded="false">
+                </button>
+                 <div class="dropdown-menu">
+
+                    <a class="dropdown-item" 
+                    href = "{{url_for('permission',fileId = items.fileid, perms = 'public')}}">
+                    Make Public
+                    </a>
+                  
+                    <a class="dropdown-item" 
+                    href = "{{url_for('permission',fileId = items.fileid, perms = 'private')}}">
+                    Make Private
+                    </a>  
+
+                    <a class="dropdown-item" 
+                    href = "{{url_for('deleteFile',fileId = items.fileid,filename = items.filename)}}">Delete
+                    </a>
+
+                    <a class="dropdown-item"
+                    href = "{{url_for('download',fileId = items.fileid, filename = items.filename)}}">
+                    Download
+                    </a>
+                </div>
+              </div>            
+          </td> 
+        </tr>
+      {% endfor %}          
+     </tbody>
+    </table>
+  </div>  
+{% endblock %}        
+
+{% block search %}
+
+    <form class="form-inline" action = "{{url_for('search')}}" method = "POST">
+    <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
+    <div class="input-group-append">
+      <button class="btn btn-outline-mdb-color waves-effect" type="submit" id="button-addon2">
+      <i class="fa fa-search fa-sm pr-2" aria-hidden="true"></i>
+        Search</button>
+    </div>
+    </form>
+
+{% endblock %}
+
+{% block upload %}
+
+  <div class="btn-group" role="group" aria-label="Basic example">
+  
+  <button  data-toggle="modal" data-target="#uploadfiles" type="button" class="btn btn-outline-mdb-color waves-effect">
+    <i class="fa fa-upload fa-sm pr-2" aria-hidden="true"></i>
+      Upload Files
+  </button>
+
+    <button  data-toggle="modal" data-target="#createfolder" type="button" class = " btn btn-outline-mdb-color waves-effect">
+    <i class="fa fa-folder fa-sm pr-2" aria-hidden="true"></i>
+    Create Folder
+  </button>
+  
+  </div>
+
+  <div class="modal fade" id="createfolder" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="cFolder">Enter folder name</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+               <form class="md-form" id="create-folder" action="{{ url_for('createfolder') }}" method="POST">
+                  <input id="folder" class="btn btn-primary btn-sm" type="text" name="folder">
+                  <input type="submit" class="btn btn-primary" value="createfolder" id="createfolder-button">
+               </form>     
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal fade" id="uploadfiles" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Choose Files</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+           <form class="md-form" id="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+              <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
+              <input type="text" name="folderId" value="{{UserDetails.currentFolderId}}" style="display:none;">
+              <input id="file-picker" class="btn btn-primary btn-sm" type="file" name="file" multiple>
+              <input type="submit" class="btn btn-primary" value="Upload!" id="upload-button">
+           </form>     
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block signOut %}
+  
+  <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+
+{% endblock %}
+
+

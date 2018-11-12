@@ -11,9 +11,10 @@ class BusinessLayer:
         self.dbObject = dataaccessobject
 
     #sqlite://///home/nitish/IIITH/Semester1/Scripting/Project-DropBox/scripting_project-master/dropbox.db  
-	
-    def getTotalSize(self):
-        return self.dbObject.getConsumedSpaceByUser(userid)
+    
+    def getTotalSize(self,userid):
+        # return self.dbObject.getConsumedSpaceByUser(userid)
+        return 100
 
     #If User Valid 
     # return Dictionary : 
@@ -260,17 +261,25 @@ class BusinessLayer:
     #   Key         Value
     #   Error   Problem In Updating Permission Details
     def changePermission(self,userId,fileId,perms,currentFolderId):
+        isPublic=None
+        if perms=='public':
+            isPublic = 0
+        if perms=='private':
+            isPublic = 1
         #Not IN DB 
-        UFiles = self.dbObject.changePermission(userId,fileId,perms)
-        UserData = {} 
-        SuccessUpdation=-1
-        for item in UFiles: 
-            if item.folderId > 0:
-                SuccessUpdation = 0
-                UserData = getFolderContents(userId,currentFolderId)
-                return UserData
-        if SuccessUpdation != 0:
-            UserData["Error"]=True       
+        #0 -> PUBLIC
+        #1 -> PRIVATE
+
+        print("88888888888888888888888888",userId,fileId,perms,currentFolderId)
+
+        UFiles = self.dbObject.updateFilePerm(fileId,userId,isPublic)
+
+        print(UFiles)
+
+        if UFiles == None:
+            return False
+        else:
+            return True
 
     #Obtain the Parent Folder ID for the userid and fileid
     def getParentFolderId(self,uId,fileId):
@@ -380,7 +389,7 @@ class BusinessLayer:
     #Remove An Existing File Entry For Every Action of Delete
     #0 : If the File Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFile(self,fileid,userid,parentFolderId,filename):
+    def RemoveExisitngFile(self,userid,parentFolderId,fileid,filename):
         successfullyRemoved=-1
         successReturn = self.CheckFilePresent(filename,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
@@ -391,7 +400,7 @@ class BusinessLayer:
     #Remove An Existing Folder Entry For Every Action of Delete
     #0 : If the Folder Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFolder(self,folderId,userid,parentFolderId,foldername):
+    def RemoveExisitngFolder(self,userid,parentFolderId,folderId,foldername):
         successfullyRemoved=-1
         successReturn = self.CheckFolderPresent(foldername,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
@@ -422,10 +431,10 @@ class BusinessLayer:
         return folderid,foldername,folderpermission,size,owner,parentFolderId
 
 
-B = BusinessLayer()
+# B = BusinessLayer()
 #B.RemoveExisitngFolder(8,1,6,"testFolder")
 #B.RemoveExisitngFile(23,2,7,"a.out")
-print(B.searchFile(1,"report.pdf"))
+# print(B.searchFile(1,"report.pdf"))
 #C = ClassStructure.Company('1','','','','')
 
 #userDetailaaaa = B.ValidateUser('nitish11', 'pass3')
