@@ -105,6 +105,21 @@ def getParentFolderForFolder(folderId, uId):
         return None
     return (result[0],result[1])
 
+def getFolderName(folderId,uId):
+    sql = text("SELECT FOLDERID,FOLDERNAME FROM FOLDER WHERE FOLDERID = :fId AND UID= :userId")
+    result = db.engine.execute(sql, fId=folderId, userId=uId).first()
+    if result == None:
+        return None
+    return (result[0],result[1])    
+
+def getFileName(fileId,uId):
+    sql = text("SELECT FILEID,FILENAME FROM FILE WHERE FILEID = :fId AND UID= :userId")
+    result = db.engine.execute(sql, fId=fileId, userId=uId).first()
+    if result == None:
+        return None
+    return (result[0],result[1])    
+
+
 def updateFilePerm(fileId, uId, newPerm):
     file = File.query.filter_by(fileId = fileId, uId = uId).first()
     file.filePerm = newPerm

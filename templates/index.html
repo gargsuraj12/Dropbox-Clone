@@ -9,7 +9,7 @@
 {% block icon %}
 
 <a class="navbar-brand col-sm-3 col-md-2 mr-0" 
-        href="/index/{{UserDetails.userid}}/{{UserDetails.homeFolderId}}">
+      href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
       Dropbox</a>
 
 {% endblock %}
@@ -17,7 +17,7 @@
 {% block gotohome %}
 
     <a class="nav-link active" 
-        href="/index/{{UserDetails.userid}}/{{UserDetails.homeFolderId}}">
+      href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
       <span data-feather="home"></span>
       <br><br>
        Home
@@ -26,8 +26,8 @@
 {% endblock %}
 
 {% block showallfiles %}
-
-    <a class="nav-link" href="/allfiles/{{UserDetails.userid}}">
+    
+    <a class="nav-link" href = "{{url_for('allfiles')}}">
       <span data-feather="file"></span>
       Files
     </a>
@@ -35,8 +35,8 @@
 {% endblock %}
 
 {% block body %}
-
-  <h1>{% print UserDetails.currentFolderName %}</h1>
+  
+  <h4 style="margin-left: 22%;margin-right:7%;">Current Folder: {% print UserDetails.currentFolderName %}</h4>
 
   <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
   
@@ -57,12 +57,14 @@
                 </button>
                  <div class="dropdown-menu">
 
-            <a class="dropdown-item" 
-            href = "opendirectory/{{UserDetails.userid}}/{{items.folderid}}/{{items.foldername}}">        Open
+                    <a class="dropdown-item" 
+                    href = "{{url_for('index',folderId = items.folderid)}}">
+                    Open
                     </a>
 
                     <a class="dropdown-item" 
-                    href = "deleteFolder/{{UserDetails.userid}}/{{items.folderid}}">Delete
+                    href = "{{url_for('deleteFolder',folderId = items.folderid)}}">
+                    Delete
                     </a>
               
                 </div>
@@ -85,19 +87,23 @@
                  <div class="dropdown-menu">
 
                     <a class="dropdown-item" 
-                    href = "permission/{{UserDetails.userid}}/{{items.fileid}}/public">Make Public
+                    href = "{{url_for('permission',fileId = items.fileid, perms = '0')}}">
+                    Make Public
                     </a>
                   
                     <a class="dropdown-item" 
-                    href = permission/{{UserDetails.userid}}/{{items.fileid}}/private">Make Private
+                    href = "{{url_for('permission',fileId = items.fileid, perms = '1')}}">
+                    Make Private
                     </a>  
 
                     <a class="dropdown-item" 
-                    href = "deleteFile/{{UserDetails.userid}}/{{items.fileid}}">Delete</a>
+                    href = "{{url_for('deleteFile',fileId = items.fileid)}}">Delete
+                    </a>
 
-                    <a class="dropdown-item" 
-                    href = "download/{{UserDetails.userid}}/{{items.fileid}}">Download</a>
-
+                    <a class="dropdown-item"
+                    href = "{{url_for('download',fileId = items.fileid)}}">
+                    Download
+                    </a>
                 </div>
               </div>            
           </td> 
@@ -111,7 +117,6 @@
 {% block search %}
 
     <form class="form-inline" action = "{{url_for('search')}}" method = "get">
-    <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
     <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
     <div class="input-group-append">
       <button class="btn btn-outline-mdb-color waves-effect" type="submit" id="button-addon2">
@@ -149,9 +154,6 @@
         </div>
         <div class="modal-body">
                <form class="md-form" id="create-folder" action="{{ url_for('createfolder') }}" method="POST">
-                  <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
-                  <input type="text" name="folderId" value="{{UserDetails.currentFolderId}}" style="display:none;">
-                  <input type="text" name="foldername" value="{{UserDetails.currentFolderName}}" style="display:none;">
                   <input id="folder" class="btn btn-primary btn-sm" type="text" name="folder">
                   <input type="submit" class="btn btn-primary" value="createfolder" id="createfolder-button">
                </form>     

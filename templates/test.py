@@ -4,7 +4,7 @@
     <script src="static/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="static/js/mdb.min.js"></script>
 
-<!--           <form action = "/opendirectory" method = "POST">
+      <form action = "/opendirectory" method = "POST">
             
             <input type="text" name="userId" value="{{UserDetails.userid}}" style="display:none;">
 
@@ -15,8 +15,16 @@
                 {%print items.filename%}
              </div>
            </button> 
-          </form>  --> 
+          </form>  
 
 import os
 
 print os.urandom(24)
+UserDetails.homeFolderId
+
+<a class="nav-link active" 
+        href="/index/{{UserDetails.userid}}/{{UserDetails.homeFolderId}}">
+      <span data-feather="home"></span>
+      <br><br>
+       Home
+    </a>

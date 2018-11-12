@@ -52,7 +52,15 @@ def validate():
         print("  #### ",UserData['UserDetails'].currentFolderId)
 
         AddToSession('userId',UserData['UserDetails'].userid)
+        AddToSession('userName',UserData['UserDetails'].userName)
         AddToSession('currentFolderId',UserData['UserDetails'].currentFolderId)
+        AddToSession('homeFolderId',UserData['UserDetails'].HomeFolderId)
+
+        foldername = UserData['UserDetails'].currentFolderName[:-1]
+
+        AddToSession('currentFolderName',foldername)
+
+
 
         if 'InvalidLogin' in UserData:
             if UserData['InvalidLogin'] == 'Invalid Login Attempt':  
@@ -65,10 +73,7 @@ def validate():
             homeFolder = BusinessLayer.getHomeFolderId(userId)
             print("HomeFolderId is: ", homeFolder.folderid)
 
-            # UserData = BusinessLayer.getFolderContents(userId,currentFolderId)
-            # UserData['UserDetails'] = 
-
-            return redirect(url_for('index', userId = UserData['UserDetails'].userid,folderId = homeFolder.folderid))
+            return redirect(url_for('index',folderId = homeFolder.folderid))
     else:
         return render_template('login.html')
 
@@ -116,53 +121,63 @@ def registerUser():
 
 @app.route('/logout')
 def logout():
-    session.pop('userId', None)
-    session.pop('currentFolderId', None)
-    return render_template('login.html')
-    # return redirect(url_for('/'))
-
-
-@app.route('/index/<string:userId>/<string:folderId>')
-def index(userId,folderId):
-
-    print("user id: ",userId)
-    print("folder id: ",folderId)
     
-    #userId = RetrieveSessionDetails('userId')
-    UserData = BusinessLayer.getFolderContents(userId, folderId)
-    print(" &&&& ",UserData['UserDetails'].currentFolderId)
-    AddToSession('currentFolderId',folderId)
+    session.pop('currentFolderName',None)    
+    session.pop('userId', None)
+    session.pop('userName',None)
+    session.pop('currentFolderId', None)
+    session.pop('homeFolderId',None)    
 
+    return render_template('login.html')
+    
+
+@app.route('/index/<folderId>')
+def index(folderId):
+
+    userId = RetrieveSessionDetails('userId')
+    AddToSession('currentFolderId',folderId)
+    foldername = BusinessLayer.getPathForFolder(userId,folderId)
+    foldername = foldername[:-1]
+    AddToSession('currentFolderName',foldername)
+
+    UserData = BusinessLayer.getFolderContents(userId, folderId)
+
+    userclassInstance = UserClass()
+    userclassInstance.setUserDetails(RetrieveSessionDetails('userId'),RetrieveSessionDetails('userName'),"passwd","name","email","phone")
+    userclassInstance.setCurrentFolderId(RetrieveSessionDetails('currentFolderId'))
+    userclassInstance.setCurrentFolderName(RetrieveSessionDetails('currentFolderName'))
+    userclassInstance.setHomeFolderId(RetrieveSessionDetails('homeFolderId'))
+
+    
+    UserData['UserDetails'] = userclassInstance
     return render_template('index.html', **UserData)
 
-#user object needed
-@app.route('/opendirectory/<string:userId>/<string:folderId>/<string:foldername>')
-def opendirectory(userId,folderId,foldername):
 
-    UserData = BusinessLayer.getFolderContents(userId,folderId)
-    
-    userobj = UserData['UserDetails']
-    # userobj.userid = userId
-    # userobj.currentFolderId = folderId
-    # userobj.currentFolderName = foldername
-
-    AddToSession('userId',userId)
-
-    return render_template('index.html',**UserData)
-
-
-@app.route('/search', methods=['POST'])
+#search result is returning empty list always
+@app.route('/search', methods=['GET','POST'])
 def search():
-    if request.method == "POST":
 
-        fileName = request.form.get('fileName')
-        userId = request.method.get('userId')
-        UserData = BusinessLayer.searchFile(userId,fileName)
+    userId = RetrieveSessionDetails('userId')
+    fileName = request.form.get('fileName')
+
+    UserData = BusinessLayer.searchFile(userId,fileName)
+
+    if UserData != None:
+
+        userclassInstance = UserClass()
+        userclassInstance.setUserDetails(RetrieveSessionDetails('userId'),RetrieveSessionDetails('userName'),"passwd","name","email","phone")
+        userclassInstance.setCurrentFolderId("0")
+        userclassInstance.setCurrentFolderName("Search Result")
+        userclassInstance.setHomeFolderId(RetrieveSessionDetails('homeFolderId'))
+
+        UserData['UserDetails'] = userclassInstance        
+        print(UserData['FileDetails'][0].filename)
 
         return render_template('index.html',**UserData)
 
     else:
-        return render_template("404.html")
+        homeFolder = BusinessLayer.getHomeFolderId(userId)
+        return redirect(url_for('index',folderId = homeFolder.folderid))
 
 
 @app.route("/upload", methods=["POST"])
@@ -170,15 +185,14 @@ def upload():
 
     if request.method == "POST":
 
-        currentFolderId = request.form.get('folderId')
-        userId = request.form.get('userId')
+        userId = RetrieveSessionDetails('userId')
+        currentFolderId = RetrieveSessionDetails('currentFolderId')
 
         print("userId: ",userId)
         print("currentFolderId: ",currentFolderId)
 
-
         path = BusinessLayer.getPathForFolder(userId,currentFolderId)
-        # path = ""
+        
         print("path: ",path)
         target = os.path.join(APP_STORAGE_PATH,path)
         print("Target path: ",target)
@@ -199,18 +213,17 @@ def upload():
             fileObj.setFileDetails(46,filename,0,file_size,userId,currentFolderId)
 
             fileObj = BusinessLayer.createFile(fileObj,userId,currentFolderId)
-            print("7777777777777777777777777777777777777777777777777777path: ")
             print(fileObj)
 
         UserData = BusinessLayer.getFolderContents(userId,currentFolderId)
-        return render_template('index.html',**UserData)
+        return redirect(url_for('index',folderId = currentFolderId))    
 
     else:
         return render_template("404.html")            
 
-
-@app.route('/download/<userId>/<fileId>')
-def download(userId, fileId):
+#need to be explained by suraj
+@app.route('/download/<fileId>')
+def download(fileId):
     pass
     # print("Filename is: ", filename)
     # path = APP_STORAGE_PATH
@@ -228,13 +241,14 @@ def createfolder():
 
     if request.method == "POST":
         
-        userId = request.form.get('userId')
-        foldername = request.form.get('folder')
-        currentFolderId = request.form.get('folderId')
+        userId = RetrieveSessionDetails('userId')
+        currentFolderId = RetrieveSessionDetails('currentFolderId')
 
-        print("userId: " ,userId)
-        print("FolderName: " ,foldername)
-        print("currentFolderId: " ,currentFolderId)
+        foldername = request.form.get('folder')
+        
+        # print("userId: " ,userId)
+        # print("FolderName: " ,foldername)
+        # print("currentFolderId: " ,currentFolderId)
         
         folderobj = BusinessLayer.createfolder(userId,currentFolderId,foldername)
         
@@ -253,7 +267,8 @@ def createfolder():
             if not os.path.isdir(destination):
                     os.mkdir(destination)
 
-            return render_template('index.html',**UserData)
+            return redirect(url_for('index',folderId = currentFolderId))            
+            # return render_template('index.html',**UserData)
 
         else:    
 
@@ -261,41 +276,61 @@ def createfolder():
     else:
         return render_template("404.html")     
 
-@app.route("/permission/<userId>/<fileId>/<perms>")
-def permission(userId,fileId,perms):
-    
-    UserData = BusinessLayer.changePermission(userId,fileId,perms)
-    # currentFolderId = BusinessLayer.getParentFolderId(userId,fileId)
+#module 'dao' has no attribute 'changePermission'
+@app.route("/permission/<fileId>/<perms>")
+def permission(fileId,perms):
 
-    return render_template('index.html',**UserData)
+    userId = RetrieveSessionDetails('userId')
+    currentFolderId = RetrieveSessionDetails("currentFolderId")
+    UserData = BusinessLayer.changePermission(userId,fileId,perms,currentFolderId)
 
+    if 'Error' in UserData:
+            if UserData['Error'] == True:
+                return render_template("404.html") 
 
+    folderId = BusinessLayer.getParentFolderId(userId,fileId)            
+
+    return redirect(url_for('index',folderId = folderId))            
+
+    # return render_template('index.html',**UserData)
+
+#Do we need this?
 @app.route('/aboutus')
 def aboutus():
 
     return render_template('aboutus.html')
 
+#need a method in business class which takes folder id and return folder object
+#creation of folder object can be avoided here, it can be done inside RemoveExixtingFolder 
+#function instead
+@app.route('/deleteFolder/<folderId>')
+def deleteFolder(folderId):
+    userId = RetrieveSessionDetails('userId')
+    flag = BusinessLayer.RemoveExisitngFolder(FileClass,UserClass)
 
-@app.route('/deleteFolder/<userId>/<fileId>')
-def deleteFolder(userId,folderId):
-    pass
+#same remarks as above
+@app.route('/deleteFile/<fileId>')
+def deleteFile(fileId):
+    userId = RetrieveSessionDetails('userId')
+    flag = BusinessLayer.RemoveExisitngFile(FileClass,UserClass)    
 
-@app.route('/deleteFile/<userId>/<fileId>')
-def deleteFile(userId,fileId):
-    pass
-
-@app.route('/allfiles',methods = ["POST"])
+#not working error in dao
+@app.route('/allfiles')
 def allfiles():
 
-    if request.method == "POST":
-        
-        userId = request.form.get('userId')
-        
-        UserData = BusinessLayer.getAllFiles(userId)
-        return render_template('index.html',**UserData)
+    userId = RetrieveSessionDetails('userId')
 
-    else:
-        return render_template("404.html")
+    UserData = BusinessLayer.getAllFiles(userId)
+
+    userclassInstance = UserClass()
+    userclassInstance.setUserDetails(RetrieveSessionDetails('userId'),RetrieveSessionDetails('userName'),"passwd","name","email","phone")
+    userclassInstance.setCurrentFolderId('0')
+    userclassInstance.setCurrentFolderName("All files")
+    userclassInstance.setHomeFolderId(RetrieveSessionDetails('homeFolderId'))
+
+    UserData['UserDetails'] = userclassInstance
+
+    return render_template('index.html',**UserData)
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -39,7 +39,7 @@ class BusinessLayer:
             if item.folderName != None and item.folderName ==  userName+'_home':
                 #print('Inside name of User')
                 userclassInstance.currentFolderId=item.folderId
-                userclassInstance.setUserCurrentFolderName(item.folderName)
+                userclassInstance.setCurrentFolderName(item.folderName)
                 userclassInstance.setHomeFolderId(item.folderId)
             FolderDetails = classObject.FolderClass()
             FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
@@ -108,7 +108,7 @@ class BusinessLayer:
             for item in FDDB:
                 if item!=None and item.folderName != None and item.folderName == userName+'_home':
                     UserClass.currentFolderId=item.folderId
-                    UserClass.setUserCurrentFolderName(item.folderName)
+                    UserClass.setCurrentFolderName(item.folderName)
                     UserClass.setHomeFolderId(item.folderId)
                 FolderDetails = classObject.FolderClass()
                 FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
@@ -170,6 +170,12 @@ class BusinessLayer:
         print(userclassInstance.currentFolderId)            
         return UserData 
 
+        def getUserDetailsByUserId(self,userid):
+            user = self.dbObject.getUserDetailsByUserId(userid)
+            userclassInstance = classObject.UserClass()
+            userclassInstance.setUserDetails(user.uId,user.username,user.name,user.passwd,user.email,user.phone)
+            return userclassInstance
+
     #Used For Searching the File 
     #List Only the File Details 
     def searchFile(self,userid,FileName):
@@ -183,8 +189,11 @@ class BusinessLayer:
             FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
             listofFileDetails.append(FileDetails)       
         
-        UserData["FileDetails"]=listofFileDetails           
-        return UserData 
+        if len(listofFileDetails) == 0:
+            return None
+        else:    
+            UserData["FileDetails"]=listofFileDetails           
+            return UserData 
 
     #Returns Full Qualified Path For the File 
     #def getPathForFile(self,User,CurrentFolder):
@@ -258,13 +267,38 @@ class BusinessLayer:
                 UserData = getFolderContents(userId,currentFolderId)
                 return UserData
         if SuccessUpdation != 0:
-            UserData["Error"]="Problem In Updating Right Details"       
+            UserData["Error"]=True       
 
     #Obtain the Parent Folder ID for the userid and fileid
-    def getParentFolderId(self,userId,fileId):
-        #Not IN DB
-        parentFolderId = self.dbObject.getParentFolderId(userId,fileId)
+    def getParentFolderId(self,uId,fileId):
+        parentFolderId = self.dbObject.getParentFolderId(uId,fileId)
         return parentFolderId
+
+
+    def getParentFolderForFile(self,uId,fileId):
+        fileId,folderName = self.dbObject.getParentFolderForFile(uId,fileId)
+        if fileId == None:
+            return None,None
+        return fileId,folderName
+
+    def getParentFolderForFolder(self,uId,folderId):
+        folderId,folderName = self.dbObject.getParentFolderForFolder(folderId,uId)
+        if folderId == None:
+            return None,None
+        return folderId,folderName
+
+    def getFolderName(self,uId,folderId):
+        folderId,folderName = self.dbObject.getFolderName(folderId,uId)
+        if folderId == None:
+            return None,None
+        return folderId,folderName     
+
+    def getFileName(self,uId,folderId):
+        fileId,fileName = self.dbObject.getFileName(fileId,uId)
+        if fileId == None:
+            return None,None
+        return fileId,fileName
+
 
     #Output:    
     #If Folder is Successfully Created 

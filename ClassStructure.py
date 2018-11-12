@@ -22,10 +22,11 @@ class UserClass:
 		self.name=name
 		self.email=email
 		self.phone=phone
-		self.currentFolderName=None
-		self.HomeFolderId=None
 
-	def setUserCurrentFolderName(self,currentFolderName):
+	def setCurrentFolderId(self,currentFolderId):
+		self.currentFolderId = currentFolderId	
+
+	def setCurrentFolderName(self,currentFolderName):
 		self.currentFolderName=currentFolderName
 
 	def setHomeFolderId(self,HomeFolderId):
