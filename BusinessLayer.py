@@ -11,6 +11,9 @@ class BusinessLayer:
         self.dbObject = dataaccessobject
 
     #sqlite://///home/nitish/IIITH/Semester1/Scripting/Project-DropBox/scripting_project-master/dropbox.db  
+	
+    def getTotalSize(self):
+        return self.dbObject.getConsumedSpaceByUser(userid)
 
     #If User Valid 
     # return Dictionary : 
@@ -197,8 +200,8 @@ class BusinessLayer:
 
     #Returns Full Qualified Path For the File 
     #def getPathForFile(self,User,CurrentFolder):
-    def getPathForFile(self,userid,currentFolderId):
-        fullQualifiedPath = self.dbObject.getPathForFile(currentFolderId)           
+    def getPathForFile(self,userid,fileId):
+        fullQualifiedPath = self.dbObject.getPathForFile(fileId)           
         return fullQualifiedPath
 
     #Returns Full Qualified Path For the File 
@@ -299,7 +302,6 @@ class BusinessLayer:
             return None,None
         return fileId,fileName
 
-
     #Output:    
     #If Folder is Successfully Created 
     # return Dictionary : 
@@ -362,17 +364,15 @@ class BusinessLayer:
         return userid,userName,name,passwd,email,phone
     
     #Check Whther the File is Present or Not 
-    def CheckFilePresent(self,FileClass,UserClass):
-        fileid,filename,filepermission,size,owner,parentFolderId = self.makeFileInfo(FileClass)
-        successReturn = self.dbObject.isFileExist(filename,parentFolderId,UserClass.userid)     
+    def CheckFilePresent(self,filename,parentFolderId,userid):
+        successReturn = self.dbObject.isFileExist(filename,parentFolderId,userid)     
         if successReturn == None:
             return False 
         return True
 
     #Check Whther the Folder is Present or Not 
-    def CheckFolderPresent(self,FolderClass,UserClass):
-        folderid,foldername,folderpermission,size,owner,parentFolderId = self.makeFolderInfo(FolderClass)
-        successReturn = self.dbObject.isFolderExist(foldername,parentFolderId,UserClass.userid)     
+    def CheckFolderPresent(self,foldername,parentFolderId,userid):
+        successReturn = self.dbObject.isFolderExist(foldername,parentFolderId,userid)     
         if successReturn == None:
             return False 
         return True 
@@ -380,23 +380,23 @@ class BusinessLayer:
     #Remove An Existing File Entry For Every Action of Delete
     #0 : If the File Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFile(self,FileClass,UserClass):
+    def RemoveExisitngFile(self,fileid,userid,parentFolderId,filename):
         successfullyRemoved=-1
-        successReturn = self.CheckFilePresent(FileClass,UserClass)
+        successReturn = self.CheckFilePresent(filename,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
         if successReturn == True:
-            successfullyRemoved = self.dbObject.deleteFile(FileClass.fileid,UserClass.userid)
+            successfullyRemoved = self.dbObject.deleteFile(fileid,userid)
         return successfullyRemoved      
-    
+
     #Remove An Existing Folder Entry For Every Action of Delete
     #0 : If the Folder Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFolder(self,FolderClass,UserClass):
+    def RemoveExisitngFolder(self,folderId,userid,parentFolderId,foldername):
         successfullyRemoved=-1
-        successReturn = self.CheckFolderPresent(FolderClass,UserClass)
+        successReturn = self.CheckFolderPresent(foldername,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
         if successReturn == True:
-            successfullyRemoved = self.dbObject.deleteFolder(FolderClass.folderId,UserClass.userid)
+            successfullyRemoved = self.dbObject.deleteFolder(folderId,userid)
         return successfullyRemoved  
 
     #Helper Method 
@@ -421,9 +421,11 @@ class BusinessLayer:
         parentFolderId=Folder.parentFolderId
         return folderid,foldername,folderpermission,size,owner,parentFolderId
 
-        
 
-#B = BusinessLayer()
+B = BusinessLayer()
+#B.RemoveExisitngFolder(8,1,6,"testFolder")
+#B.RemoveExisitngFile(23,2,7,"a.out")
+print(B.searchFile(1,"report.pdf"))
 #C = ClassStructure.Company('1','','','','')
 
 #userDetailaaaa = B.ValidateUser('nitish11', 'pass3')
