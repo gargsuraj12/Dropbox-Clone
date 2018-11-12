@@ -34,9 +34,58 @@
 
 {% endblock %}
 
-{% block body %}
-  
-  <h4 style="margin-left: 22%;margin-right:7%;">Current Folder: {% print UserDetails.currentFolderName %}</h4>
+{% block showSize %}
+
+  <a class="nav-link" >
+    <!-- <span data-feather="file"></span> -->
+    <!-- <div class="popup" onclick="myFunction()">Space Used
+ <span class="popuptext" id="myPopup">{% print session['TotalSize'] %}</span>
+ </div> -->
+    <span data-feather="file"></span>
+Space Used
+      <br>
+{% if session['TotalSize'] <= 1024 %}
+{% print session['TotalSize'] %} B
+{% elif session['TotalSize'] > 1024 and session['TotalSize'] <= 1048576 %}
+{% set var=session['TotalSize'] / 1024 %}
+{{'%0.2f' % var|float}} KB
+{% elif session['TotalSize'] > 1048576 and session['TotalSize'] <= 1073741824%}
+{% set var= session['TotalSize'] / 1048576 %}
+{{'%0.2f' % var|float}} MB
+{% else %}
+{% set var= session['TotalSize'] / 1073741824 %}
+{{'%0.2f' % var|float}} GB
+{% endif %}
+  </a>
+
+  <script>
+    // When the user clicks on div, open the popup
+    function myFunction() {
+        var popup = document.getElementById("myPopup");
+        popup.classList.toggle("show");
+}
+    </script>
+
+{% endblock %}
+
+
+
+  {% block body %}
+
+  {% if  UserDetails.currentFolderId|string == UserDetails.HomeFolderId|string %}
+    
+    <h4 style="margin-left: 22%;margin-right:7%;"> Home </h4>
+
+  {% else %}
+
+  <h4 style="margin-left: 22%;margin-right:7%;">
+    
+    {% set index = UserDetails.currentFolderName.find('/') %}
+    {% set foldername = UserDetails.currentFolderName[index+1:] %}
+    {% set foldername = "Home/"~foldername %}
+    {% print foldername %} </h4>
+
+  {% endif %}
 
   <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
   
@@ -63,7 +112,7 @@
                     </a>
 
                     <a class="dropdown-item" 
-                    href = "{{url_for('deleteFolder',folderId = items.folderid)}}">
+                    href = "{{url_for('deleteFolder',folderId = items.folderid,foldername = items.foldername)}}">
                     Delete
                     </a>
               
@@ -86,22 +135,28 @@
                 </button>
                  <div class="dropdown-menu">
 
+                    {% if items.filepermission %}
+
                     <a class="dropdown-item" 
-                    href = "{{url_for('permission',fileId = items.fileid, perms = '0')}}">
+                    href = "{{url_for('permission',fileId = items.fileid, perms = 'public')}}">
                     Make Public
                     </a>
                   
+                    {% else %}                    
+
                     <a class="dropdown-item" 
-                    href = "{{url_for('permission',fileId = items.fileid, perms = '1')}}">
+                    href = "{{url_for('permission',fileId = items.fileid, perms = 'private')}}">
                     Make Private
                     </a>  
 
+                    {% endif %}                    
+
                     <a class="dropdown-item" 
-                    href = "{{url_for('deleteFile',fileId = items.fileid)}}">Delete
+                    href = "{{url_for('deleteFile',fileId = items.fileid,filename = items.filename)}}">Delete
                     </a>
 
                     <a class="dropdown-item"
-                    href = "{{url_for('download',fileId = items.fileid)}}">
+                    href = "{{url_for('download',fileId = items.fileid, filename = items.filename)}}">
                     Download
                     </a>
                 </div>
@@ -116,7 +171,7 @@
 
 {% block search %}
 
-    <form class="form-inline" action = "{{url_for('search')}}" method = "get">
+    <form class="form-inline" action = "{{url_for('search')}}" method = "POST">
     <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
     <div class="input-group-append">
       <button class="btn btn-outline-mdb-color waves-effect" type="submit" id="button-addon2">

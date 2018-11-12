@@ -28,3 +28,27 @@ UserDetails.homeFolderId
       <br><br>
        Home
     </a>
+
+
+
+
+      {% if UserDetails.HomeFolderId == UserDetails.currentFolderId %}
+  
+    <h4 style="margin-left: 22%;margin-right:7%;">Home Folder:
+     {% print UserDetails.HomeFolderId %}</h4>
+
+    <h4 style="margin-left: 22%;margin-right:7%;">Current Folder: {% print UserDetails.currentFolderId %}</h4>
+
+    <h4 style="margin-left: 22%;margin-right:7%;">Current Folder: Home </h4>
+
+  {% else %}
+  
+    <h4 style="margin-left: 22%;margin-right:7%;">Current Folder: {% print UserDetails.currentFolderName %}</h4>
+
+  {% endif %}
+
+
+
+{% if items.filepermission|string == "0"|string %}
+{% else %}
+{% endif %}
