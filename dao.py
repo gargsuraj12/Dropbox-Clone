@@ -1,7 +1,8 @@
 from model import User, File, Folder, db 
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
-from sqlalchemy import event, and_
+from sqlalchemy import event, and_, update
+from sqlalchemy.exc import SQLAlchemyError
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -10,38 +11,56 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 def insertUser(uname, passwd, name, email, phone):
-    newUser = User(username=uname, passwd=passwd, name=name, email=email, phone=phone)
-    db.session.add(newUser)
-    db.session.commit()
-    uId = newUser.uId
-    homeFolder = uname+"_home"
-    newFolder = Folder(folderName=homeFolder, uId=uId, pFolderId=None)
-    db.session.add(newFolder)
-    db.session.commit()
-    folders = Folder.query.filter_by(folderId=newFolder.folderId).all()
-    return newUser,folders
+    try:    
+        newUser = User(username=uname, passwd=passwd, name=name, email=email,   phone=phone)
+        db.session.add(newUser)
+        db.session.commit()
+        uId = newUser.uId
+        homeFolder = uname+"_home"
+        newFolder = Folder(folderName=homeFolder, uId=uId, pFolderId=None)
+        db.session.add(newFolder)
+        db.session.commit()
+        folders = Folder.query.filter_by(folderId=newFolder.folderId).all()
+        return newUser,folders
+    except SQLAlchemyError as e:
+        print(e)
+        return False
 
 def updateUserDetails(uId, uname, passwd, name, email, phone):
-    user = User.query.filter_by(uId=uId).first()
-    user.username = uname
-    user.passwd = passwd
-    user.name = name
-    user.email = email
-    user.phone = phone
-    db.session.commit()
-    return user
+    try:    
+        user = User.query.filter_by(uId=uId).first()
+        user.username = uname
+        user.passwd = passwd
+        user.name = name
+        user.email = email
+        user.phone = phone
+        db.session.commit()
+        return user
+    except SQLAlchemyError as e:
+        print(e)
+        return False
 
 def insertFile(fname, filePerm, size, uId, pFolderId):
-    newFile = File(fileName=fname, filePerm=filePerm, size=size, uId=uId, pFolderId=pFolderId)
-    db.session.add(newFile)
-    db.session.commit()
-    return newFile
+    try:    
+        newFile = File(fileName=fname, filePerm=filePerm, size=size, uId=uId,   pFolderId=pFolderId)
+        db.session.add(newFile)
+        db.session.commit()
+        return newFile
+    except SQLAlchemyError as e:
+        print(e)
+        return False
+
 
 def insertFolder(fname, uId, pFolderId):
-    newFolder = Folder(folderName=fname, uId=uId, pFolderId=pFolderId)
-    db.session.add(newFolder)
-    db.session.commit()
-    return newFolder
+    try:    
+        newFolder = Folder(folderName=fname, uId=uId, pFolderId=pFolderId)
+        db.session.add(newFolder)
+        db.session.commit()
+        return newFolder
+    except SQLAlchemyError as e:
+        print(e)
+        return False
+
 
 def validateUser(uname, password):
     user = User.query.filter_by(username=uname, passwd=password).first()
@@ -120,23 +139,36 @@ def getFileName(fileId,uId):
 
 
 def updateFilePerm(fileId, uId, newPerm):
-    file = File.query.filter_by(fileId = fileId, uId = uId).first()
-    file.filePerm = newPerm
-    db.session.commit()
+    try:
+        file = File.query.filter_by(fileId = fileId, uId = uId).first()
+        file.filePerm = newPerm
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        print(e)
+        return False
 
 def getHomeFolderForUser(uId):
     folder = Folder.query.filter_by(pFolderId=None, uId=uId).first()
     return folder
 
 def deleteFile(fileId, userId):
-    result = File.query.filter_by(fileId=fileId, uId=userId).delete()
-    db.session.commit()
-    return result
+    try:
+        result = File.query.filter_by(fileId=fileId, uId=userId).delete()
+        db.session.commit()
+        return result
+    except SQLAlchemyError as e:
+        print(e)
+        return False
 
 def deleteFolder(folderId, userId):
-    result = Folder.query.filter_by(folderId=folderId, uId=userId).delete()
-    db.session.commit()
-    return result
+    try:    
+        result = Folder.query.filter_by(folderId=folderId, uId=userId).delete()
+        db.session.commit()
+        return result
+    except SQLAlchemyError as e:
+        print(e)
+        return False
 
 def getUserDetailsByUserId(userId):
     user = User.query.filter_by(uId=userId).first()
@@ -150,6 +182,8 @@ def getConsumedSpaceByUser(userId):
     return size[0]
 
 # Testing goes here
+
+# print(updateFilePerm(1,1,"0"))
 
 # files = listAllPublicFilesByFilename("iNdEx")
 # for file in files:
