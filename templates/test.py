@@ -90,7 +90,4 @@ UserDetails.homeFolderId
 ####################################################################################
 issues
 
-search result is empty
-empty value in login gives error
-Home/All files -> All files
-hide right, delete, move during search 
+No result founds message display when search result is empty 
