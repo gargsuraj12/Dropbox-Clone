@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <!-- Google fonts - Popppins for copy-->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,800">
+    <link href='https://fonts.googleapis.com/css?family=Titan One' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Sofia' rel='stylesheet'>
     <!-- orion icons-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/orionicons.css') }}">
     <!-- theme stylesheet-->
@@ -113,6 +115,15 @@
                 clear: both; 
                 display: table; 
             } 
+
+            /* .frameContent
+            {
+                background-image: url(/static/freshCloud.png); 
+                opacity: 0.2; 
+                width: 300px;
+                height: 300px;
+                filter: alpha(opacity=20);
+            } */
               
               
             @media screen and (max-width: 300px) { 
@@ -123,20 +134,21 @@
 
             </style>
   </head>
-  <body>
+  <div class="frameContent"><body style="background-image: url(/static/downloadOpac.png ); background-color: #F8F9FB; background-repeat: no-repeat; margin-top: 100px; background-position-y: 40px; background-position-x: 50%;"></div>
     <div class="page-holder d-flex align-items-center">
       <div class="container">
         <div class="row align-items-center py-5">
           <div class="col-5 col-lg-7 mx-auto mb-5 mb-lg-0">
-            <div class="pr-lg-5"><img src="/static/freshCloud.png" alt="" class="img-fluid"></div>
+            <!-- <div class="pr-lg-5"><img src="/static/freshCloud.png" alt="" class="img-fluid"></div> -->
+
           </div>
-          <div class="col-lg-5 px-lg-4">
-            <h1 class="mb-4">DropBox</h1>
+          <div class="col-lg-5 px-lg-4" style="margin-left: 350px; margin-top: 50px;" >
+            <h1 class="mb-4" style="font-family: Titan One;  " >DropBox</h1>
             
-            <p class="text-muted">Safest and most secure way to store your data.</p>
+            <h5><p style="color: black; font-family: Sofia;">Safest and most secure way to store your data </p></h5>
             <form id="loginForm" class="mt-4" action = "{{url_for('validate')}}"  method="POST">
               <div class="form-group mb-4">
-                    <input type="text" name="username" placeholder="Username or Email address" class="form-control border-0 shadow form-control-lg" value="{{request.form['username']}}">
+                    <input type="text" name="username" placeholder="Username" class="form-control border-0 shadow form-control-lg" value="{{request.form['username']}}">
               </div>
               <div class="form-group mb-4">
                     <input type="password" name="password" placeholder="Password" class="form-control border-0 shadow form-control-lg text-violet" value="{{request.form['password']}}">
@@ -148,7 +160,7 @@
                 <button type="submit" class="btn btn-primary " style="margin-right: 10px;">Log in</button>
             </form>
 
-            <button type="submit" class="btn btn-primary " onclick="document.getElementById('id02').style.display='block'">Sign Up</button>
+            <button type="submit" class="btn btn-primary " style="margin-left: 170px; margin-top: -70px;" onclick="document.getElementById('id02').style.display='block'">Sign Up</button>
 
               <div id="id02" class="modal"> 
                     <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">×</span> 
@@ -164,17 +176,18 @@
                         <p><input type="text" placeholder="Enter Email" name="email" value="{{request.form.email}}" required></p> 
                             
                         <label><b>Password</b></label> 
-                        <p><input type="password" placeholder="Enter Password" name="psw" value="{{request.form.psw}}" required></p> 
+                        <p><input type="password" placeholder="Enter Password" name="psw" id="pswd" value="{{request.form.psw}}" required></p> 
 
                         <label><b>Repeat Password</b></label> 
-                        <p><input type="password" placeholder="Re-enter Password" name="repswd" value="{{request.form.repswd}}" required></p>
+                        <p><input type="password" placeholder="Re-enter Password" name="repswd" id="repswd" value="{{request.form.repswd}}" required></p>
 
-                        <div class="clearfix"> 
-                            <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn" style="float: center;">Cancel</button> 
-                            <button type="submit" class="signupbtn" style="float: center;">Sign Up</button> 
+                        <div class="clearfix">  
+                            <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn" style="float: center; color: black;">Cancel</button> 
+                            <button type="submit" class="signupbtn" style="margin-left: 100px;">Sign Up</button> 
                         </div> 
                   
                     </div> 
+                    
                     </form> 
               </div> 
               <script> 
@@ -185,10 +198,27 @@
                       } 
                   } 
 
+                  var password = document.getElementById("pswd")
+                    , confirm_password = document.getElementById("repswd");
+
+                    function validatePassword(){
+                    if(password.value != confirm_password.value) {
+                        confirm_password.setCustomValidity("Passwords Don't Match");
+                    } else {
+                        confirm_password.setCustomValidity('');
+                    }
+                    }
+
+                    password.onchange = validatePassword;
+                    confirm_password.onkeyup = validatePassword;
+
+
+
               </script>
 
             {% if error %}
-                <p class="error"><strong>Error:</strong>{{ error }}</p>
+                <br>
+                <h6 class="error" style="color:red;"><strong>Error: </strong>{{ error }}</h6>
             {% endif %}
           </div>
         </div>

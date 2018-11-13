@@ -15,7 +15,8 @@
                 {%print items.filename%}
              </div>
            </button> 
-          </form>  
+          </form> 
+
 
 import os
 
@@ -29,6 +30,41 @@ UserDetails.homeFolderId
        Home
     </a>
 
+{% block search %}
+
+    <form class="form-inline" action = "{{url_for('search')}}" method = "POST">
+    <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
+    <div class="input-group-append">
+      <button class="btn btn-outline-default waves-effect" type="submit" id="button-addon2">
+      <i class="fa fa-search fa-sm pr-2" aria-hidden="true"></i>
+        Search</button>
+    </div>
+    </form>
+
+{% endblock %}
+
+
+    <nav class="navbar navbar-dark sticky-top bg-primary flex-md-nowrap p-0">
+      {% block icon %}{% endblock %}
+        <div class="float-left">
+              
+              {% block search %}{% endblock %}
+
+        </div>
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          {% block signOut %}{% endblock %}
+        </li>
+      </ul>
+    </nav>
+
+
+
+<input type="text" id="inputLGEx" class="form-control form-control-lg">
+
+<a class="navbar-brand col-sm-3 col-md-2 mr-0" 
+      href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
+      Dropbox</a>
 
 
 
@@ -49,6 +85,12 @@ UserDetails.homeFolderId
 
 
 
-{% if items.filepermission|string == "0"|string %}
-{% else %}
-{% endif %}
+
+
+####################################################################################
+issues
+
+search result is empty
+empty value in login gives error
+Home/All files -> All files
+hide right, delete, move during search 

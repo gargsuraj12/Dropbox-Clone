@@ -7,10 +7,11 @@
 {% endblock %} 
 
 {% block icon %}
-
-<a class="navbar-brand col-sm-3 col-md-2 mr-0" 
+<div style="background-color:blue">
+<a class="navbar-brand col-sm-3 col-md-12 mr-2"  
       href = "{{url_for('index',folderId = UserDetails.HomeFolderId)}}">
-      Dropbox</a>
+      <h1 style="line-height: 1.1;"><font color="white" style="font-family:Titan One;">DropBox</font></h1>
+</a></div>
 
 {% endblock %}
 
@@ -68,26 +69,45 @@ Space Used
 
 {% endblock %}
 
+{% block aboutus %}
+    
+    <a class="nav-link">
+      <span data-feather="file"></span>
+      Developed with <i class="fa fa-heart red-text " aria-hidden="true"></i> by Scriptians
+    </a>
+
+
+{% endblock %}
+
+
+
 
 
   {% block body %}
+  {% if sourceParameter|string == "searchSource"|string %}
+    <h4 style="margin-left: 22%;margin-right:7%;"> Search Result </h4>
 
-  {% if  UserDetails.currentFolderId|string == UserDetails.HomeFolderId|string %}
+  {% elif AllFilesource|string == "AllFilesource"|string %}  
+    <h4 style="margin-left: 22%;margin-right:7%;"> All Files </h4>
+
+  {% elif  UserDetails.currentFolderId|string == UserDetails.HomeFolderId|string %}
     
     <h4 style="margin-left: 22%;margin-right:7%;"> Home </h4>
 
   {% else %}
-
-  <h4 style="margin-left: 22%;margin-right:7%;">
+<div style="margin-left: 22%;margin-right:7%;">
+  <h4>
     
     {% set index = UserDetails.currentFolderName.find('/') %}
     {% set foldername = UserDetails.currentFolderName[index+1:] %}
     {% set foldername = "Home/"~foldername %}
     {% print foldername %} </h4>
 
+</div>
   {% endif %}
 
-  <div class="table-responsive table-wrapper-scroll-y" style="margin-left: 20%;margin-right:7%;">
+  <div class="table-responsive table-wrapper-scroll-y" 
+  style="margin-left: 22%;margin-right:7%;overflow-y:visible;overflow-x:visible;">
   
     <table class="table table-hover">
     <tbody>    
@@ -133,7 +153,9 @@ Space Used
                   data-toggle="dropdown" aria-haspopup="true"
                   aria-expanded="false">
                 </button>
-                 <div class="dropdown-menu">
+                 <div class="dropdown-menu" style="z-index:100">
+
+                  {% if sourceParameter != "searchSource" %}  
 
                     {% if items.filepermission %}
 
@@ -155,10 +177,24 @@ Space Used
                     href = "{{url_for('deleteFile',fileId = items.fileid,filename = items.filename)}}">Delete
                     </a>
 
+                    <a class="dropdown-item"  href = "{{url_for('moveFile',fileId = items.fileid, fileName = items.filename)}}">
+                    Move File
+                    </a>
+
+                  {% endif %}
+
                     <a class="dropdown-item"
                     href = "{{url_for('download',fileId = items.fileid, filename = items.filename)}}">
                     Download
                     </a>
+
+                    <a class="dropdown-item"
+                    href = "{{url_for('openfile',fileId = items.fileid, fileName = items.filename)}}" target="blank">
+                    Open
+                    </a>
+
+                    
+
                 </div>
               </div>            
           </td> 
@@ -172,12 +208,12 @@ Space Used
 {% block search %}
 
     <form class="form-inline" action = "{{url_for('search')}}" method = "POST">
-    <input name ="fileName" type="text" class=" form-control form-control-dark w-70" placeholder="Search" aria-label="Search" aria-describedby="button-addon2"/>
-    <div class="input-group-append">
-      <button class="btn btn-outline-mdb-color waves-effect" type="submit" id="button-addon2">
+      <div class="md-form my-0">
+      <input class="form-control mr-lg-2" name ="fileName" type="text" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-default waves-effect" type="submit" id="button-addon2">
       <i class="fa fa-search fa-sm pr-2" aria-hidden="true"></i>
-        Search</button>
-    </div>
+        <b>Search</b></button>
+      </div>
     </form>
 
 {% endblock %}
@@ -185,6 +221,13 @@ Space Used
 {% block upload %}
 
   <div class="btn-group" role="group" aria-label="Basic example">
+
+  <form class="form-inline" action = "{{url_for('copyCurrentPath')}}" method = "POST">
+    <button type="submit" class="btn btn-outline-mdb-color waves-effect">
+      <i class="fas fa-copy fa-sm pr-2" aria-hidden="true" ></i>
+      Copy Current Path
+    </button>
+  </form>
   
   <button  data-toggle="modal" data-target="#uploadfiles" type="button" class="btn btn-outline-mdb-color waves-effect">
     <i class="fa fa-upload fa-sm pr-2" aria-hidden="true"></i>
@@ -240,12 +283,16 @@ Space Used
     </div>
   </div>
 
+
 {% endblock %}
 
 {% block signOut %}
-  
-  <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+<a href="{{url_for('logout')}}">
+  <button type="button" class="btn btn-outline-default waves-effect px-2">
+    <i class="fa fa-user fa-sm pr-2" aria-hidden="true"><b>Logout</b></i></button></a>
 
 {% endblock %}
+
+
 
 

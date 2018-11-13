@@ -9,6 +9,8 @@
     <link href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500" rel="stylesheet" >
     <link href="//fonts.googleapis.com/css?family=Amaranth:400,400i,700,700i" rel="stylesheet">
     <link href="//fonts.googleapis.com/css?family=PT+Sans:400,400i,700,700i" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Titan One' rel='stylesheet'>
+    <link href='https://fonts.googleapis.com/css?family=Amarante' rel='stylesheet'>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/mdb.min.css')}}">
@@ -20,23 +22,27 @@
   </head>
 
   <body>
-    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      {% block icon %}{% endblock %}
-        <div class="float-left">
-              
-              {% block search %}{% endblock %}
 
-        </div>
-      <ul class="navbar-nav px-3">
-        <li class="nav-item text-nowrap">
-          {% block signOut %}{% endblock %}
+  <nav style="margin-left: 16%" class="navbar navbar-expand-lg navbar-dark primary-color">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#basicExampleNav"
+      aria-controls="basicExampleNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="basicExampleNav">
+
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          {% block search %}{% endblock %}
         </li>
       </ul>
-    </nav>
+      {% block signOut %}{% endblock %}
+    </div>
+  </nav>
 
     <div class="container-fluid">
       <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <nav class="col-md-2 d-none d-md-block bg-blue sidebar">
+          {% block icon %}{% endblock %}
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
@@ -50,15 +56,57 @@
                 {% block showSize %}{% endblock %}
               
               </li>
+              <li class="nav-item" style="margin-top:58%;">
+
+                {% block aboutus %}{% endblock %}
+              
+              </li>
+              <li>
+              <footer class="page-footer font-small special-color-dark pt-4">
+
+                  <div class="container">
+                    <ul class="list-unstyled list-inline text-center">
+                      <li class="list-inline-item">
+                        <a class="btn-floating btn-fb mx-1">
+                          <i class="fa fa-facebook"> </i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a class="btn-floating btn-tw mx-1">
+                          <i class="fa fa-twitter"> </i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a class="btn-floating btn-gplus mx-1">
+                          <i class="fa fa-google-plus"> </i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a class="btn-floating btn-li mx-1">
+                          <i class="fa fa-linkedin"> </i>
+                        </a>
+                      </li>
+                      <li class="list-inline-item">
+                        <a class="btn-floating btn-dribbble mx-1">
+                          <i class="fa fa-dribbble"> </i>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="footer-copyright text-center py-3">© 2018 Copyright:
+                    <a> Scriptians</a>
+                  </div>
+                </footer>
+              </li>
             </ul>
           </div>
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <dir>
+                
                     {% block userwelcome %}{% endblock %}
-                </dir>
+                
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group mr-2">
                         {% block upload %} {% endblock %}
@@ -72,6 +120,8 @@
             {% block body %} {% endblock %}
     </div>
     
+
+
 
     <script src="{{ url_for('static',filename='js/jquery-3.3.1.min.js')}}"></script>
     <script src="{{ url_for('static',filename='js/popper.min.js')}}"></script>
