@@ -98,7 +98,6 @@ def getPathForFile(fileId):
         return None
     path = str(result[0])
     path += '/'
-    # print("55555555555555555555555555555555555: ",path)
     return path
 
 def getPathForFolder(folderId):

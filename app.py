@@ -30,10 +30,17 @@ app.secret_key = os.urandom(24)
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 APP_STORAGE_PATH = APP_ROOT + str('/Repository/')
 
+# @app.route('/')
+# def landingPage():
+#     return render_template("login.html")
+
 @app.route('/')
 def landingPage():
+    print("----APP ROOT IS ACCESSED----")
+    if len(session) != 0:
+        print("------User already logged in------")
+        return redirect(url_for('index',folderId = session['homeFolderId']))
     return render_template("login.html")
-
 
 @app.route('/validate', methods=['GET','POST'])
 def validate():
@@ -280,26 +287,26 @@ def createfolder():
 
         foldername = request.form.get('folder')
         
-        folderobj = BusinessLayer.createfolder(userId,currentFolderId,foldername)
-        
-        if folderobj != None:
+        if foldername != '':
+            folderobj = BusinessLayer.createfolder(userId,currentFolderId,foldername)
+                
+            if folderobj != None:
 
-            UserData = BusinessLayer.getFolderContents(userId,currentFolderId)
-            path = BusinessLayer.getPathForFolder(userId,currentFolderId)
+                UserData = BusinessLayer.getFolderContents(userId,currentFolderId)
+                path = BusinessLayer.getPathForFolder(userId,currentFolderId)
 
-            print("APP_STORAGE_PATH: ",APP_STORAGE_PATH)
-            target = APP_STORAGE_PATH+path
-            
-            destination = target+foldername
-            
-            if not os.path.isdir(destination):
+                print("APP_STORAGE_PATH: ",APP_STORAGE_PATH)
+                target = APP_STORAGE_PATH+path
+                
+                destination = target+foldername
+                
+                if not os.path.isdir(destination):
                     os.mkdir(destination)
-
-            return redirect(url_for('index',folderId = currentFolderId))            
-            
-        else:    
-
-            return render_template("404.html")    
+                    return redirect(url_for('index',folderId = currentFolderId))                            
+                else:  
+                    return render_template("404.html")
+        else:
+            return redirect(url_for('index',folderId = currentFolderId))                    
     else:
         return render_template("404.html")     
 
@@ -452,6 +459,10 @@ def moveFile(fileId, fileName):
         print("Key not present in session")
         
     return redirect(url_for('index',folderId = currentFolderId))
+
+@app.errorhandler(Exception)
+def exception_handler(error):
+    return render_template('404.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
