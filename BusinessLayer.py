@@ -199,6 +199,7 @@ class BusinessLayer:
             UserData["FileDetails"]=listofFileDetails           
             return UserData 
 
+
     #Returns Full Qualified Path For the File 
     #def getPathForFile(self,User,CurrentFolder):
     def getPathForFile(self,userid,fileId):
@@ -285,7 +286,6 @@ class BusinessLayer:
     def getParentFolderId(self,uId,fileId):
         parentFolderId = self.dbObject.getParentFolderId(uId,fileId)
         return parentFolderId
-
 
     def getParentFolderForFile(self,uId,fileId):
         fileId,folderName = self.dbObject.getParentFolderForFile(uId,fileId)
@@ -431,7 +431,17 @@ class BusinessLayer:
         return folderid,foldername,folderpermission,size,owner,parentFolderId
 
 
-# B = BusinessLayer()
+B = BusinessLayer()
+
+#B.getParentFolderId(1,71)
+#// File Id // User ID 
+#print(B.getParentFolderForFile(71,4))
+# give Folder Id 
+#// File Id // User ID 
+#print(B.getFolderName(1,16))
+#// User ID // File Id //  
+#print(B.getParentFolderForFolder(1,16))
+
 #B.RemoveExisitngFolder(8,1,6,"testFolder")
 #B.RemoveExisitngFile(23,2,7,"a.out")
 # print(B.searchFile(1,"report.pdf"))
