@@ -42,9 +42,7 @@
 
 ------------------------------------------------- Start For Prakash --------------------------------------------
 
-One method for get full qualified path
-GetUserDetails() not defined in BusinessLayer.py
-search files and folder for a user
-seperate fuctions for getfolders and getfiles
+getPathForFolder and getPathForFile not working
 
 ------------------------------------------------- End For Prakash --------------------------------------------
+

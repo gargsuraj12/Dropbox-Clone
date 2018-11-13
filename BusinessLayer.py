@@ -196,7 +196,8 @@ class BusinessLayer:
         if len(listofFileDetails) == 0:
             return None
         else:    
-            UserData["FileDetails"]=listofFileDetails           
+            UserData["FileDetails"]=listofFileDetails
+            UserData["sourceParameter"]="searchSource"           
             return UserData 
 
 
@@ -431,11 +432,15 @@ class BusinessLayer:
         return folderid,foldername,folderpermission,size,owner,parentFolderId
 
 
-B = BusinessLayer()
+    #updateParentFolderForFile(fileId,userId,newParentFolderId)
+    def setNewParentFolderForFile(self,fileId,userId,newParentFolderId):
+        return self.dbObject.updateParentFolderForFile(fileId,userId,newParentFolderId)
 
+B = BusinessLayer()
+#print(B.updateParentFolderForFile(60,1,1))
 #B.getParentFolderId(1,71)
 #// File Id // User ID 
-#print(B.getParentFolderForFile(71,4))
+#print(B.getParentFolderForFile(80,4))
 # give Folder Id 
 #// File Id // User ID 
 #print(B.getFolderName(1,16))

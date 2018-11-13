@@ -2,11 +2,14 @@
 
 from model import db
 import os,errno
-from flask import Flask, render_template, request, send_from_directory, redirect, url_for, send_file,session
+import shutil
+from flask import Flask, render_template,send_from_directory,request, send_from_directory, redirect, url_for, send_file,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from ClassStructure import UserClass , FileClass, FolderClass
 import BusinessLayer
+from mimetypes import MimeTypes
+import urllib 
 
 BusinessLayer = BusinessLayer.BusinessLayer()
 
@@ -49,6 +52,11 @@ def validate():
         
         UserData = BusinessLayer.ValidateUser(username,password)
         
+        if("Invalid Login Attempt" in UserData.values()):
+
+            error="Please check username or password !"
+            return render_template("login.html",error=error)
+
 
         print("  #### ",UserData['UserDetails'].currentFolderId)
 
@@ -143,6 +151,12 @@ def index(folderId):
     #AddToSession('directory_home',foldername)
 
     UserData = BusinessLayer.getFolderContents(userId, folderId)
+    UserData["sourceParameter"]="NotsearchIndex" 
+    UserData["AllFilesource"]="NotAllFileSource"
+    # if BusinessLayer.getHomeFolderId(folderId) == folderId:
+    #     UserData["homefolder"] = "home"
+    # else:    
+    #     UserData["homefolder"] = "nothome"
 
     userclassInstance = UserClass()
     userclassInstance.setUserDetails(RetrieveSessionDetails('userId'),RetrieveSessionDetails('userName'),"passwd","name","email","phone")
@@ -154,23 +168,22 @@ def index(folderId):
     UserData['UserDetails'] = userclassInstance
     return render_template('index.html', **UserData)
 
-
 #search result is returning empty list always
 @app.route('/search', methods=["POST"])
 def search():
 
     userId = RetrieveSessionDetails('userId')
     fileName = request.form.get('fileName')
-
-    print("sddfffffffffffffffffffffffffffffffffffffffffffff1",fileName)
-    print("sddfffffffffffffffffffffffffffffffffffffffffffff2",userId)
+    
+    if fileName == '':
+        currentFolderId = RetrieveSessionDetails('currentFolderId')
+        return redirect(url_for('index',folderId = currentFolderId))
 
     UserData = BusinessLayer.searchFile(userId,fileName)
     
-    print("sddfffffffffffffffffffffffffffffffffffffffffffff",UserData)
-
     if UserData != None:
-
+        # UserData['searchStatus'] = 'True'
+        
         userclassInstance = UserClass()
         userclassInstance.setUserDetails(RetrieveSessionDetails('userId'),
         RetrieveSessionDetails('userName'),"passwd","name","email","phone")
@@ -179,12 +192,17 @@ def search():
         userclassInstance.setHomeFolderId(RetrieveSessionDetails('homeFolderId'))
 
         UserData['UserDetails'] = userclassInstance        
+        UserData["AllFilesource"]="NotAllFileSource"
+        UserData["sourceParameter"]="searchSource"  
+        
         print("Search Result: ",UserData['FileDetails'][0].filename)
-
         return render_template('index.html',**UserData)
+        # return redirect(url_for('indexSearch',folderId = homeFolder.folderid))
 
     else:
         homeFolder = BusinessLayer.getHomeFolderId(userId)
+        # UserData['searchStatus'] = 'False'
+        AddToSession('searchResult','False')
         return redirect(url_for('index',folderId = homeFolder.folderid))
 
 
@@ -300,19 +318,24 @@ def permission(fileId,perms):
 
     return redirect(url_for('index',folderId = folderId))            
 
-    
-#Do we need this?
-@app.route('/aboutus')
-def aboutus():
-
-    return render_template('aboutus.html')
 
 
 @app.route('/deleteFolder/<folderId>/<foldername>')
 def deleteFolder(folderId,foldername):
     userId = RetrieveSessionDetails('userId')
     currentFolderId = RetrieveSessionDetails('currentFolderId')
+    path = BusinessLayer.getPathForFolder(userId,folderId)
     flag = BusinessLayer.RemoveExisitngFolder(userId,currentFolderId,folderId,foldername)
+
+    if flag == 1:
+
+        target = os.path.join(APP_STORAGE_PATH,path)
+
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa target: ",target)
+
+        shutil.rmtree(target)
+        AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
+   
 
     AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
 
@@ -321,12 +344,28 @@ def deleteFolder(folderId,foldername):
 
 @app.route('/deleteFile/<fileId>/<filename>')
 def deleteFile(fileId,filename):
+
     userId = RetrieveSessionDetails('userId')
     currentFolderId = RetrieveSessionDetails('currentFolderId')
+    
+    parentFolderId,parentfolderName = BusinessLayer.getParentFolderForFile(fileId,userId)
+    print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk: ",parentFolderId)
+    print("llllllllllllllllllllllllllllllllllllllllll: ",parentfolderName)
+
     flag = BusinessLayer.RemoveExisitngFile(userId,currentFolderId,fileId,filename)    
 
-    AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
+    if flag == True:
+        
+        try:
+            path = BusinessLayer.getPathForFolder(userId,parentFolderId)
+            target = os.path.join(APP_STORAGE_PATH,path)
+            destination = "/".join([target, filename])
+            os.remove(destination)
+            AddToSession('TotalSize',BusinessLayer.getTotalSize(userId))
 
+        except OSError:
+            pass    
+            
     return redirect(url_for('index',folderId = currentFolderId))
 
 @app.route('/allfiles')
@@ -343,8 +382,76 @@ def allfiles():
     userclassInstance.setHomeFolderId(RetrieveSessionDetails('homeFolderId'))
 
     UserData['UserDetails'] = userclassInstance
-
+    UserData["sourceParameter"]="NotsearchIndex"
+    UserData["AllFilesource"]="AllFilesource" 
     return render_template('index.html',**UserData)
+
+
+@app.route('/open/<fileId>/<fileName>')
+def openfile(fileId,fileName):
+
+    userId = RetrieveSessionDetails('userId')
+
+    parentFolderId,parentfolderName = BusinessLayer.getParentFolderForFile(fileId,userId)
+
+    print("///////////////////////////////////////",parentFolderId,parentfolderName)    
+
+    path = BusinessLayer.getPathForFolder(userId,parentFolderId)
+    target = os.path.join(APP_STORAGE_PATH,path)       
+
+
+    mime = MimeTypes()
+    url = urllib.request.pathname2url(target)
+    mime_type = mime.guess_type(url)
+    print (mime_type)
+
+    return send_from_directory(directory = target,filename = fileName,mimetype = mime_type[0])
+
+
+@app.route('/copyCurrentPath',methods=["POST"])
+def copyCurrentPath():
+    print("----Inside copyCurrentPath ----")
+    currentFolderId = RetrieveSessionDetails('currentFolderId')
+    AddToSession('newParentFolderId',currentFolderId)
+    return redirect(url_for('index',folderId = currentFolderId))
+
+
+@app.route('/moveFile/<fileId>/<fileName>')
+def moveFile(fileId, fileName):
+    print("File id to move is: ", fileId, " and filename to move is: ", fileName)
+    currentFolderId = RetrieveSessionDetails('currentFolderId')
+    userId = RetrieveSessionDetails('userId')
+    if 'newParentFolderId' in session:
+        newParentFolderId = session['newParentFolderId']
+        if BusinessLayer.CheckFilePresent(fileName, newParentFolderId, userId) == True:
+            print("File cannot be moved at destination as a file with same name already present at destination....")
+            session.pop('newParentFolderId', None)
+            return redirect(url_for('index',folderId = currentFolderId))
+
+
+        if BusinessLayer.setNewParentFolderForFile(fileId, userId, newParentFolderId) == False:
+            print("---Unable to update new Parent folder of file in DB")
+            session.pop('newParentFolderId', None)
+            return redirect(url_for('index',folderId = currentFolderId))
+
+        srcPath = APP_STORAGE_PATH
+        srcPath += BusinessLayer.getPathForFolder(userId, currentFolderId)
+        srcPath += fileName
+        print("-------File src path is: ", srcPath)
+        destPath = APP_STORAGE_PATH
+        destPath += BusinessLayer.getPathForFolder(userId, newParentFolderId)
+        destPath += fileName
+        print("------Destination path is: ", destPath)
+        try:
+            os.rename(srcPath, destPath)
+            session.pop('newParentFolderId', None)
+            print("----OH YEAH!! File successfully moved----")
+        except OSError:
+            print("-------OH NO!!! Unable to move file---------")    
+    else:
+        print("Key not present in session")
+        
+    return redirect(url_for('index',folderId = currentFolderId))
 
 @app.errorhandler(404)
 def page_not_found(e):

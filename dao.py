@@ -98,6 +98,7 @@ def getPathForFile(fileId):
         return None
     path = str(result[0])
     path += '/'
+    # print("55555555555555555555555555555555555: ",path)
     return path
 
 def getPathForFolder(folderId):
@@ -110,10 +111,11 @@ def getPathForFolder(folderId):
     return path
 
 def getParentFolderForFile(fileId, uId):
-    sql = text("select FOLDERID, FOLDERNAME from FOLDER where FOLDERID in (select P_FOLDERID from file where FILEID= :fId and UID = :userId)")
+    #sql = text("select FOLDERID, FOLDERNAME from FOLDER where FOLDERID in (select P_FOLDERID from file where FILEID= :fId and UID = :userId)")
+    sql = text("select FOLDERID, FOLDERNAME from FOLDER where FOLDERID in (select P_FOLDERID from file where FILEID= :fId)")
     result = db.engine.execute(sql, fId=fileId, userId=uId).first()
     if result == None:
-        return None
+        return None,None
     return (result[0],result[1])
 
 def getParentFolderForFolder(folderId, uId):
@@ -168,7 +170,7 @@ def deleteFolder(folderId, userId):
         return result
     except SQLAlchemyError as e:
         print(e)
-        return False
+        return 0
 
 def getUserDetailsByUserId(userId):
     user = User.query.filter_by(uId=userId).first()
@@ -189,7 +191,7 @@ def updateParentFolderForFile(fileId, userId, newParentFolderId):
         return True
     except SQLAlchemyError as e:
         print(e)
-        return False    
+        return False
 
 # Testing goes here
 

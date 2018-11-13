@@ -11,6 +11,10 @@ class BusinessLayer:
         self.dbObject = dataaccessobject
 
     #sqlite://///home/nitish/IIITH/Semester1/Scripting/Project-DropBox/scripting_project-master/dropbox.db  
+    
+    def getTotalSize(self,userid):
+        return self.dbObject.getConsumedSpaceByUser(userid)
+        
 
     #If User Valid 
     # return Dictionary : 
@@ -37,21 +41,26 @@ class BusinessLayer:
         
         for item in user.folders: 
             if item.folderName != None and item.folderName ==  userName+'_home':
-                print('Inside name of User')
+                #print('Inside name of User')
                 userclassInstance.currentFolderId=item.folderId
-                userclassInstance.setUserCurrentFolderName(item.folderName)
+                userclassInstance.setCurrentFolderName(item.folderName)
                 userclassInstance.setHomeFolderId(item.folderId)
             FolderDetails = classObject.FolderClass()
             FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
-            listofFolderDetails.append(FolderDetails)       
+            listofFolderDetails.append(FolderDetails)   
+    
+        for item in user.files:             
+            FileDetails = classObject.FileClass()
+            FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
+            listofFileDetails.append(FileDetails)           
         
-        print(listofFolderDetails[0].foldername)        
+        #print(listofFolderDetails[0].foldername)       
         
         UserData["UserDetails"]=userclassInstance
         UserData["FolderDetails"]=listofFolderDetails
         UserData["FileDetails"]=listofFileDetails
         
-        #print(UserData)            
+        print(UserData)         
 
         return UserData
         #All Details of File , Folder and user will  return UserData dictionary 
@@ -100,15 +109,15 @@ class BusinessLayer:
             listofFolderDetails = []
             listofFileDetails = []
 
-            for item in FDDB: 
-                if item.folderName != None and item.folderName == userName+'_home':
+            for item in FDDB:
+                if item!=None and item.folderName != None and item.folderName == userName+'_home':
                     UserClass.currentFolderId=item.folderId
-                    UserClass.setUserCurrentFolderName(item.folderName)
+                    UserClass.setCurrentFolderName(item.folderName)
                     UserClass.setHomeFolderId(item.folderId)
                 FolderDetails = classObject.FolderClass()
                 FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
                 listofFolderDetails.append(FolderDetails)       
-            
+                
             UserData["UserDetails"]=UserClass
             UserData["FolderDetails"]=listofFolderDetails
             UserData["FileDetails"]=listofFileDetails           
@@ -137,8 +146,6 @@ class BusinessLayer:
     #   Key         Value
     #   UserAlreadyExist    New User Already Exist UserObject with details
     def getFolderContents(self,userid,CurrentFolderId):
-        #print(userid,CurrentFolderId)
-        #print('BakWas')
         FolderDetails=None
         UserData = {} 
         UFiles,UFolders = self.dbObject.listContentUnderFolder(CurrentFolderId,userid)
@@ -156,13 +163,22 @@ class BusinessLayer:
             FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
             listofFileDetails.append(FileDetails)       
         
-        usertempInstance  = classObject.UserClass()
-        usertempInstance.setUserDetails(1,'om','1','name','email','phone')
-        UserData["UserDetails"]=usertempInstance
+        user = self.dbObject.getUserDetailsByUserId(userid)
+        userclassInstance = classObject.UserClass()
+        userclassInstance.setUserDetails(user.uId,user.username,user.name,user.passwd,user.email,user.phone)
+        userclassInstance.currentFolderId = CurrentFolderId
+
+        UserData["UserDetails"]=userclassInstance
         UserData["FolderDetails"]=listofFolderDetails
         UserData["FileDetails"]=listofFileDetails
-        # print(UserData)         
+        print(userclassInstance.currentFolderId)            
         return UserData 
+
+        def getUserDetailsByUserId(self,userid):
+            user = self.dbObject.getUserDetailsByUserId(userid)
+            userclassInstance = classObject.UserClass()
+            userclassInstance.setUserDetails(user.uId,user.username,user.name,user.passwd,user.email,user.phone)
+            return userclassInstance
 
     #Used For Searching the File 
     #List Only the File Details 
@@ -177,36 +193,63 @@ class BusinessLayer:
             FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,item.pFolderId)
             listofFileDetails.append(FileDetails)       
         
-        UserData["FileDetails"]=listofFileDetails           
-        return UserData 
+        if len(listofFileDetails) == 0:
+            return None
+        else:    
+            UserData["FileDetails"]=listofFileDetails           
+            return UserData 
 
     #Returns Full Qualified Path For the File 
     #def getPathForFile(self,User,CurrentFolder):
-    def getPathForFile(self,userid,currentFolderId):
-        #fullQualifiedPath = self.dbObject.getPathForFile(currentFolderId)   
-        fullQualifiedPath = "/om_home"
-        return fullQualifiedPath    
+    def getPathForFile(self,userid,fileId):
+        fullQualifiedPath = self.dbObject.getPathForFile(fileId) 
+        print("2222222222222222222222222222222222222222222222222222: ",fullQualifiedPath)          
+        return fullQualifiedPath
 
-    #Create A New Folder
+    #Returns Full Qualified Path For the File 
+    #def getPathForFolder(self,User,CurrentFolder):
+    def getPathForFolder(self,userid,currentFolderId):
+        fullQualifiedPath = self.dbObject.getPathForFolder(currentFolderId)         
+        return fullQualifiedPath
+
+    #Create A New File
     #Output:    
-    #If Folder is Successfully Created 
-    # return Dictionary : 
-    #   Key     Value
-    #   userDetails UserObject with details
-    #   FolderDetails   User listofFolderDetails
-    #   FileDetails User listofFileDetails
-    #If Folder is not able to create 
-    #   Key         Value
-    #   Error   Problem In Creating A Folder
+    #If File is Successfully Created 
+    # return Created File Class Object
+    #If Folder is not able to create return None
     def createfolder(self,userId,currentFolderId,foldername):
+        successReturn = self.dbObject.isFolderExist(foldername,currentFolderId,userId)      
+        if successReturn != None:
+            return None 
         item = self.dbObject.insertFolder(foldername,userId,currentFolderId)
         if item == None:
             return None             
         FolderDetails = classObject.FolderClass()
         FolderDetails.setFolderDetails(item.folderId,item.folderName,item.uId,item.pFolderId)
         return FolderDetails
-
-
+            
+    #Create A New File
+    #Output:    
+    #If File is Successfully Created 
+    # return Created File Class Object
+    #If Folder is not able to create return None
+    def createFile(self,FileClass,userId,currentFolderId):
+        successReturn = self.dbObject.isFileExist(FileClass.filename,currentFolderId,userId)  
+        print('Check1')      
+        if successReturn != None:
+            return None         
+        print('Check2')      
+        
+        item = self.dbObject.insertFile(FileClass.filename,FileClass.filepermission,
+                                        FileClass.size,userId,currentFolderId)
+        if item == None:
+            return None     
+        print('Check3')      
+        FileDetails = classObject.FileClass()
+        FileDetails.setFileDetails(item.fileId,item.fileName,item.filePerm,item.size,item.uId,
+        item.pFolderId)
+        return FileDetails
+    
     #Changes the Permission Details for Particular FileId  
     #Output:    
     #If Folder is Successfully Created 
@@ -219,23 +262,55 @@ class BusinessLayer:
     #   Key         Value
     #   Error   Problem In Updating Permission Details
     def changePermission(self,userId,fileId,perms,currentFolderId):
+        isPublic=None
+        if perms=='public':
+            isPublic = 0
+        if perms=='private':
+            isPublic = 1
         #Not IN DB 
-        UFiles = self.dbObject.changePermission(userId,fileId,perms)
-        UserData = {} 
-        SuccessUpdation=-1
-        for item in UFiles: 
-            if item.folderId > 0:
-                SuccessUpdation = 0
-                UserData = getFolderContents(userId,currentFolderId)
-                return UserData
-        if SuccessUpdation != 0:
-            UserData["Error"]="Problem In Updating Right Details"       
+        #0 -> PUBLIC
+        #1 -> PRIVATE
+
+        print("88888888888888888888888888",userId,fileId,perms,currentFolderId)
+
+        UFiles = self.dbObject.updateFilePerm(fileId,userId,isPublic)
+
+        #print(UFiles)
+
+        if UFiles == None:
+            return False
+        else:
+            return True
 
     #Obtain the Parent Folder ID for the userid and fileid
-    def getParentFolderId(self,userId,fileId):
-        #Not IN DB
-        parentFolderId = self.dbObject.getParentFolderId(userId,fileId)
+    def getParentFolderId(self,uId,fileId):
+        parentFolderId = self.dbObject.getParentFolderId(uId,fileId)
         return parentFolderId
+
+
+    def getParentFolderForFile(self,uId,fileId):
+        fileId,folderName = self.dbObject.getParentFolderForFile(uId,fileId)
+        if fileId == None:
+            return None,None
+        return fileId,folderName
+
+    def getParentFolderForFolder(self,uId,folderId):
+        folderId,folderName = self.dbObject.getParentFolderForFolder(folderId,uId)
+        if folderId == None:
+            return None,None
+        return folderId,folderName
+
+    def getFolderName(self,uId,folderId):
+        folderId,folderName = self.dbObject.getFolderName(folderId,uId)
+        if folderId == None:
+            return None,None
+        return folderId,folderName     
+
+    def getFileName(self,uId,folderId):
+        fileId,fileName = self.dbObject.getFileName(fileId,uId)
+        if fileId == None:
+            return None,None
+        return fileId,fileName
 
     #Output:    
     #If Folder is Successfully Created 
@@ -287,6 +362,7 @@ class BusinessLayer:
         FolderClass.parentFolderId=Folder.pFolderId
         return FolderClass
 
+    #Helper Method 
     def makeUserInfo(self,UserClass):               
         userid=UserClass.userid
         userName = UserClass.userName
@@ -296,46 +372,52 @@ class BusinessLayer:
         phone=UserClass.phone
         #address=UserClass.address
         return userid,userName,name,passwd,email,phone
+    
+    #Check Whther the File is Present or Not 
+    def CheckFilePresent(self,filename,parentFolderId,userid):
+        successReturn = self.dbObject.isFileExist(filename,parentFolderId,userid)     
+        if successReturn == None:
+            return False 
+        return True
 
-    #Un-Used                
+    #Check Whther the Folder is Present or Not 
+    def CheckFolderPresent(self,foldername,parentFolderId,userid):
+        successReturn = self.dbObject.isFolderExist(foldername,parentFolderId,userid)     
+        if successReturn == None:
+            return False 
+        return True 
+        
     #Remove An Existing File Entry For Every Action of Delete
     #0 : If the File Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFile(self,File,User):
+    def RemoveExisitngFile(self,userid,parentFolderId,fileid,filename):
         successfullyRemoved=-1
-        listFileDetails,successReturn = GetFileMetaData(self,File,User)
+        successReturn = self.CheckFilePresent(filename,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
-        if successReturn == 0:
-            fileid,filename,filepermission,size,owner,parentFolderId=self.makeFileInfo(File)
-            userid,name,passwd,email,phone,address = self.makeUserInfo(User)
+        if successReturn == True:
             successfullyRemoved = self.dbObject.deleteFile(fileid,userid)
         return successfullyRemoved      
-    
-    #Un-Used
+
     #Remove An Existing Folder Entry For Every Action of Delete
     #0 : If the Folder Id is Scussefully Removed From the DataBase
     #-1 : In Case of Other Scenarios  
-    def RemoveExisitngFolder(self,File,User):
-        successfullyRemoved=-1
-        listFileDetails,successReturn = GetFileMetaData(self,File,User)
+    def RemoveExisitngFolder(self,userid,parentFolderId,folderId,foldername):
+        successfullyRemoved = 0
+        successReturn = self.CheckFolderPresent(foldername,parentFolderId,userid)
         #Shows File With Same name Does Not Exist for the user      
-        if successReturn == 0:
-            folderid,filename,folderpermission,size,owner,parentFolderId=self.makeFolderInfo(File)
-            userid,name,passwd,email,phone,address = self.makeUserInfo(User)
-            successfullyRemoved = self.dbObject.deleteFolder(folderid,userid)
-        return successfullyRemoved      
-        
-    
+        if successReturn == True:
+            successfullyRemoved = self.dbObject.deleteFolder(folderId,userid)
+        return successfullyRemoved  
 
     #Helper Method 
-    def makeFileInfo(self,File):                
-        fileid=File.fileid
-        filename=File.filename
-        filepermission=File.filepermission
-        size=File.size
+    def makeFileInfo(self,FileClass):               
+        fileid=FileClass.fileid
+        filename=FileClass.filename
+        filepermission=FileClass.filepermission
+        size=FileClass.size
         #with respect to DataBase Onwer is User Id who Own the file
-        owner=File.owner
-        parentFolderId=File.parentFolderId
+        owner=FileClass.owner
+        parentFolderId=FileClass.parentFolderId
         return fileid,filename,filepermission,size,owner,parentFolderId
 
     #Helper Method 
@@ -347,20 +429,22 @@ class BusinessLayer:
         #with respect to DataBase Onwer is User Id who Own the file
         owner=Folder.owner
         parentFolderId=Folder.parentFolderId
-        return folderid,filename,folderpermission,size,owner,parentFolderId
+        return folderid,foldername,folderpermission,size,owner,parentFolderId
 
-        
 
 # B = BusinessLayer()
-# #C = ClassStructure.Company('1','','','','')
+#B.RemoveExisitngFolder(8,1,6,"testFolder")
+#B.RemoveExisitngFile(23,2,7,"a.out")
+# print(B.searchFile(1,"report.pdf"))
+#C = ClassStructure.Company('1','','','','')
 
-# userDetail = B.ValidateUser('nitish11', 'pass3')
-# if userDetail == None:
-#     print(' User Not Validated ')
-# else:
-#     userDetails = userDetail["UserDetails"]
-#     print(userDetails.currentFolderId,userDetails.HomeFolderId,userDetails.currentFolderName,userDetails.userid,
-# userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
+#userDetailaaaa = B.ValidateUser('nitish11', 'pass3')
+#if userDetailaaaa == None:
+#   print(' User Not Validated ')
+#else:
+#   userDetailsa = userDetailaaaa["UserDetails"]
+#print(userDetails.currentFolderId,userDetails.HomeFolderId,userDetails.currentFolderName,userDetails.userid,
+#userDetails.userName,userDetails.passwd,userDetails.name,userDetails.email,userDetails.phone)
 
 #value = B.isUserExist('user3')
 #if value == False:
