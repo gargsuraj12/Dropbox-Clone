@@ -181,6 +181,16 @@ def getConsumedSpaceByUser(userId):
         return 0
     return size[0]
 
+def updateParentFolderForFile(fileId, userId, newParentFolderId):
+    try:
+        file = File.query.filter_by(fileId = fileId, uId = userId).first()
+        file.pFolderId = newParentFolderId
+        db.session.commit()
+        return True
+    except SQLAlchemyError as e:
+        print(e)
+        return False    
+
 # Testing goes here
 
 # print(updateFilePerm(1,1,"0"))
